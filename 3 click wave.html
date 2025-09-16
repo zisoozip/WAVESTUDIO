@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찢어진 천 파동 효과</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;font-family:Arial,sans-serif;height:100vh;width:100vw;cursor:url('image/mou.png'),auto}
+#home-button{position:fixed;left:20px;top:20px;z-index:1000;width:50px;height:50px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.12));border:.5px solid rgba(255,255,255,.1);border-radius:50%;cursor:url('image/mou.png'),auto;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+#home-button:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+#home-button svg{width:24px;height:24px;fill:rgba(255,255,255,.7);transition:all .3s ease}
+#home-button:hover svg{fill:#fff}
+.fabric-mode{width:100%;height:100vh;position:relative;overflow:hidden}
+#fabricCanvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:url('image/mou.png'),auto}
+.instruction{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:#fff;font-size:15px;font-weight:600;animation:pulse 3s ease-in-out infinite;text-align:center;background:rgba(0,0,0,.7);padding:14px 24px;border-radius:18px;border:1px solid rgba(255,255,255,.4);letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+@keyframes pulse{0%,100%{opacity:.9}50%{opacity:1}}
+@media(max-width:768px){
+  #home-button{width:45px;height:45px;left:15px;top:15px}
+  #home-button svg{width:20px;height:20px}
+  .instruction{font-size:13px;padding:10px 18px}
+}
+</style>
+</head>
+<body>
+<div id="home-button" onclick="goHome()">
+  <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+</div>
+<div id="fabricMode" class="fabric-mode">
+  <canvas id="fabricCanvas"></canvas>
+  <div class="instruction">클릭하여 찢어진 천의 파동을 생성하세요</div>
+</div>
+<script>
+let fabricAnimationId;
+function goHome(){
+  try{
+    console.log('홈 버튼 클릭됨!');
+    if(window.location.protocol==='file:'){
+      window.location.href='./index.html#list-section';
+    }else{
+      window.location.href='/index.html#list-section';
+    }
+  }catch(error){
+    console.error('홈 페이지 이동 오류:',error);
+    if(window.location.protocol==='file:'){
+      window.location.href='./index.html';
+    }else{
+      window.location.href='/index.html';
+    }
+  }
+}
+let fabricCanvas,fabricCtx,fabricWidth,fabricHeight,fabricTime=0,fabricMouseX=0,fabricMouseY=0;
+let ripples=[],fabricThreads=[];
+function initFabricMode(){
+  fabricCanvas=document.getElementById('fabricCanvas');
+  fabricCtx=fabricCanvas.getContext('2d');
+  function resizeFabricCanvas(){
+    fabricWidth=fabricCanvas.width=window.innerWidth;
+    fabricHeight=fabricCanvas.height=window.innerHeight;
+    initializeFabricThreads();
+  }
+  function initializeFabricThreads(){
+    fabricThreads=[];
+    for(let x=0;x<fabricWidth;x+=8){
+      fabricThreads.push({type:'vertical',baseX:x,points:[],thickness:0.8+Math.random()*0.4,tearPoints:[],fiberEnds:[]});
+      const t=fabricThreads[fabricThreads.length-1];
+      for(let y=0;y<fabricHeight;y+=2){
+        t.points.push({x,y,baseOffset:(Math.random()-0.5)*0.5,microOffset:(Math.random()-0.5)*0.2});
+      }
+      for(let i=0;i<Math.random()*2;i++){
+        t.tearPoints.push({y:Math.random()*fabricHeight,severity:Math.random()*0.5+0.2,length:Math.random()*20+10});
+      }
+      for(let i=0;i<Math.random()*3+1;i++){
+        t.fiberEnds.push({y:Math.random()*fabricHeight,length:Math.random()*8+3,angle:(Math.random()-0.5)*Math.PI*0.3,thickness:Math.random()*0.3+0.1});
+      }
+    }
+    for(let y=0;y<fabricHeight;y+=16){
+      fabricThreads.push({type:'horizontal',baseY:y,points:[],thickness:0.6+Math.random()*0.3,tearPoints:[],fiberEnds:[]});
+      const t=fabricThreads[fabricThreads.length-1];
+      for(let x=0;x<fabricWidth;x+=4){
+        t.points.push({x,y,baseOffset:(Math.random()-0.5)*0.3,microOffset:(Math.random()-0.5)*0.1});
+      }
+      for(let i=0;i<Math.random()*1+1;i++){
+        t.tearPoints.push({x:Math.random()*fabricWidth,severity:Math.random()*0.4+0.1,length:Math.random()*15+8});
+      }
+      for(let i=0;i<Math.random()*2+1;i++){
+        t.fiberEnds.push({x:Math.random()*fabricWidth,length:Math.random()*6+2,angle:(Math.random()-0.5)*Math.PI*0.4,thickness:Math.random()*0.2+0.05});
+      }
+    }
+  }
+  function drawTornFabric(){
+    fabricCtx.fillStyle='#000';
+    fabricCtx.fillRect(0,0,fabricWidth,fabricHeight);
+    drawFabricDust();
+    drawFabricThreads();
+    drawRipples();
+    drawMouseDisturbance();
+    fabricTime+=0.2;
+    fabricAnimationId=requestAnimationFrame(drawTornFabric);
+  }
+  function drawFabricDust(){
+    fabricCtx.globalAlpha=0.03;
+    for(let i=0;i<40;i++){
+      fabricCtx.fillStyle='#fff';
+      const s=Math.random()*0.8+0.2;
+      fabricCtx.fillRect(Math.random()*fabricWidth,Math.random()*fabricHeight,s,s);
+    }
+    fabricCtx.globalAlpha=1;
+  }
+  function drawFabricThreads(){
+    fabricThreads.forEach(thread=>{
+      fabricCtx.save();
+      fabricCtx.strokeStyle='#fff';
+      fabricCtx.lineWidth=thread.thickness;
+      fabricCtx.globalAlpha=0.7+Math.sin(fabricTime*0.01)*0.1;
+      fabricCtx.lineCap='round';
+      if(thread.type==='vertical')drawVerticalTornThread(thread);
+      else drawHorizontalTornThread(thread);
+      drawFiberEnds(thread);
+      fabricCtx.restore();
+    });
+  }
+  function drawVerticalTornThread(thread){
+    let seg=[];
+    thread.points.forEach((p,idx)=>{
+      let{x,y}=p;
+      let off=Math.sin((y+fabricTime*0.8)*0.006)*2+Math.sin((y+fabricTime*1.3)*0.012)*1+p.baseOffset+Math.sin(fabricTime*0.05+idx*0.1)*p.microOffset;
+      const md=Math.hypot(x-fabricMouseX,y-fabricMouseY);
+      if(md<120){
+        const mi=1-md/120;
+        off+=Math.sin((y+fabricTime*2)*0.02)*mi*6;
+        off+=(Math.random()-0.5)*mi*2;
+      }
+      ripples.forEach(r=>{
+        const d=Math.hypot(x-r.x,y-r.y);
+        if(d<r.maxRadius&&d>r.radius-40){
+          const inf=Math.exp(-(d-r.radius)*(d-r.radius)/300)*r.life;
+          off+=Math.sin((d-r.radius)*r.frequency+r.phase)*r.amplitude*inf;
+          if(inf>0.3&&Math.random()<0.02)off+=(Math.random()-0.5)*r.tearForce*15;
+        }
+      });
+      let torn=false;
+      thread.tearPoints.forEach(t=>{
+        if(Math.abs(y-t.y)<t.length){
+          torn=true;
+          const inf=1-Math.abs(y-t.y)/t.length;
+          off+=(Math.random()-0.5)*t.severity*20*inf;
+          if(inf>0.7&&Math.random()<0.3){
+            if(seg.length>1){
+              drawTornSegment(seg);
+              seg=[];
+            }
+            return;
+          }
+        }
+      });
+      seg.push({x:x+off,y,torn});
+      if(seg.length>20||idx===thread.points.length-1){
+        drawTornSegment(seg);
+        seg=[];
+      }
+    });
+  }
+  function drawHorizontalTornThread(thread){
+    let seg=[];
+    thread.points.forEach((p,idx)=>{
+      let{x,y}=p;
+      let off=Math.sin((x+fabricTime*0.6)*0.004)*1.5+Math.sin((x+fabricTime*1.1)*0.008)*0.8+p.baseOffset+Math.sin(fabricTime*0.03+idx*0.08)*p.microOffset;
+      const md=Math.hypot(x-fabricMouseX,y-fabricMouseY);
+      if(md<100){
+        const mi=1-md/100;
+        off+=Math.sin((x+fabricTime*1.5)*0.015)*mi*4;
+      }
+      ripples.forEach(r=>{
+        const d=Math.hypot(x-r.x,y-r.y);
+        if(d<r.maxRadius&&d>r.radius-30){
+          const inf=Math.exp(-(d-r.radius)*(d-r.radius)/200)*r.life;
+          off+=Math.sin((d-r.radius)*r.frequency*1.5+r.phase)*r.amplitude*0.4*inf;
+        }
+      });
+      let torn=false;
+      thread.tearPoints.forEach(t=>{
+        if(Math.abs(x-t.x)<t.length){
+          torn=true;
+          const inf=1-Math.abs(x-t.x)/t.length;
+          off+=(Math.random()-0.5)*t.severity*15*inf;
+          if(inf>0.6&&Math.random()<0.2){
+            if(seg.length>1){
+              drawTornSegment(seg);
+              seg=[];
+            }
+            return;
+          }
+        }
+      });
+      seg.push({x,y:y+off,torn});
+      if(seg.length>15||idx===thread.points.length-1){
+        drawTornSegment(seg);
+        seg=[];
+      }
+    });
+  }
+  function drawTornSegment(segment){
+    if(segment.length<2)return;
+    fabricCtx.beginPath();
+    fabricCtx.moveTo(segment[0].x,segment[0].y);
+    for(let i=1;i<segment.length;i++){
+      const p=segment[i],prev=segment[i-1];
+      if(p.torn||prev.torn){
+        const mx=(prev.x+p.x)/2+(Math.random()-0.5)*2;
+        const my=(prev.y+p.y)/2+(Math.random()-0.5)*2;
+        fabricCtx.quadraticCurveTo(mx,my,p.x,p.y);
+      }else{
+        fabricCtx.lineTo(p.x+(Math.random()-0.5)*0.5,p.y+(Math.random()-0.5)*0.5);
+      }
+    }
+    fabricCtx.stroke();
+  }
+  function drawFiberEnds(thread){
+    fabricCtx.globalAlpha=0.4;
+    fabricCtx.lineWidth=0.3;
+    thread.fiberEnds.forEach(f=>{
+      fabricCtx.beginPath();
+      let sx,sy,ex,ey;
+      if(thread.type==='vertical'){
+        sx=thread.baseX+(Math.random()-0.5)*3;
+        sy=f.y;
+        ex=sx+Math.cos(f.angle)*f.length;
+        ey=sy+Math.sin(f.angle)*f.length;
+      }else{
+        sx=f.x;
+        sy=thread.baseY+(Math.random()-0.5)*2;
+        ex=sx+Math.cos(f.angle)*f.length;
+        ey=sy+Math.sin(f.angle)*f.length;
+      }
+      fabricCtx.moveTo(sx,sy);
+      fabricCtx.lineTo(ex,ey);
+      fabricCtx.lineWidth=f.thickness;
+      fabricCtx.stroke();
+    });
+    fabricCtx.globalAlpha=1;
+  }
+  function drawRipples(){
+    ripples=ripples.filter(r=>r.life>0);
+    ripples.forEach(r=>{
+      fabricCtx.save();
+      for(let k=0;k<3;k++){
+        const rr=r.radius+k*15;
+        if(rr<r.maxRadius){
+          fabricCtx.globalAlpha=r.life*(0.6-k*0.15);
+          fabricCtx.strokeStyle='#fff';
+          fabricCtx.lineWidth=1.5-k*0.3;
+          fabricCtx.beginPath();
+          const pts=60;
+          for(let i=0;i<=pts;i++){
+            const ang=(i/pts)*Math.PI*2;
+            let rad=rr+Math.sin(ang*6+r.phase+fabricTime*0.05)*2*r.life;
+            rad+=(Math.random()-0.5)*1.5*r.life;
+            const x=r.x+Math.cos(ang)*rad,y=r.y+Math.sin(ang)*rad;
+            if(i===0)fabricCtx.moveTo(x,y);
+            else fabricCtx.lineTo(x,y);
+          }
+          fabricCtx.closePath();
+          fabricCtx.stroke();
+        }
+      }
+      r.radius+=r.speed;
+      r.life-=r.decay;
+      fabricCtx.restore();
+    });
+  }
+  function drawMouseDisturbance(){
+    fabricCtx.save();
+    fabricCtx.globalAlpha=0.15;
+    const g=fabricCtx.createRadialGradient(fabricMouseX,fabricMouseY,0,fabricMouseX,fabricMouseY,60);
+    g.addColorStop(0,'rgba(255,255,255,.08)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    fabricCtx.fillStyle=g;
+    fabricCtx.fillRect(fabricMouseX-60,fabricMouseY-60,120,120);
+    fabricCtx.restore();
+  }
+  window.addEventListener('resize',resizeFabricCanvas);
+  fabricCanvas.addEventListener('mousemove',e=>{fabricMouseX=e.clientX;fabricMouseY=e.clientY;});
+  fabricCanvas.addEventListener('click',e=>{
+    ripples.push({x:e.clientX,y:e.clientY,radius:0,maxRadius:250+Math.random()*150,amplitude:12+Math.random()*18,frequency:0.08+Math.random()*0.12,life:1.0,decay:0.008+Math.random()*0.004,speed:2+Math.random()*2,phase:Math.random()*Math.PI*2,tearForce:0.3+Math.random()*0.4});
+  });
+  resizeFabricCanvas();
+  drawTornFabric();
+}
+window.addEventListener('load',()=>{initFabricMode();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='h'||e.key==='H'||e.key==='Home')goHome();
+});
+</script>
+</body>
+</html>
