@@ -455,16 +455,57 @@ window.addEventListener("resize",schedulePasses);window.addEventListener("orient
 </script>
 
 
-<script id="list-section-wheel-fix">
-  (function(){
-    try {
-      var ls = document.getElementById('list-section');
-      if (!ls) return;
-      // Prevent parent (horizontal slider) wheel listeners from hijacking scrolling inside the list section
-      ls.addEventListener('wheel', function(e){ e.stopPropagation(); }, { passive: false });
-      ls.addEventListener('touchmove', function(e){ e.stopPropagation(); }, { passive: true });
-    } catch (e) {}
-  })();
+
+
+
+<script id="list-section-wheel-bridge">
+(function(){
+  var ls = document.getElementById('list-section');
+  if (!ls) return;
+
+  // choose inner scrollable container if present
+  var inner = ls.querySelector('.marquee-container') || ls;
+
+  function canScroll(el, deltaY){
+    if (!el) return false;
+    var top = Math.ceil(el.scrollTop);
+    var max = el.scrollHeight - el.clientHeight - 1;
+
+    if (deltaY > 0) { // scroll down
+      return top < max;
+    } else if (deltaY < 0) { // scroll up
+      return top > 0;
+    }
+    return false;
+  }
+
+  function onWheel(e){
+    // if inner area can scroll further in the direction, keep it local;
+    // otherwise let it bubble so the horizontal slider can change sections.
+    if (canScroll(inner, e.deltaY)){
+      e.stopPropagation();
+      // ensure default scroll happens inside inner
+    } else {
+      // allow bubble to parent to trigger slide change
+    }
+  }
+
+  function onTouchMove(e){
+    // can't reliably detect direction without tracking touchstart; keep simple:
+    // if inner is scrollable at all, stop propagation; else allow bubble.
+    if (inner && inner.scrollHeight > inner.clientHeight){
+      // Determine if at extremes
+      var atTop = inner.scrollTop <= 0;
+      var atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 1;
+      if (!(atTop || atBottom)){
+        e.stopPropagation();
+      }
+    }
+  }
+
+  ls.addEventListener('wheel', onWheel, { passive: true });
+  ls.addEventListener('touchmove', onTouchMove, { passive: true });
+})();
 </script>
 
 </body>
