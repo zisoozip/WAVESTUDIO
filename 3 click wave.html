@@ -23,7 +23,8 @@ body{background:#000;overflow:hidden;font-family:Arial,sans-serif;height:100vh;w
 </style>
 </head>
 <body>
-<a id="home-button" href="index.html#list-section">
+<!-- 홈버튼 수정됨 -->
+<a id="home-button" href="./index.html#list-section">
   <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
 </a>
 <div id="fabricMode" class="fabric-mode">
@@ -35,7 +36,7 @@ let fabricAnimationId;
 function goHome(){
   try{
     console.log('홈 버튼 클릭됨!');
-    window.location.href = 'index.html#list-section';
+    window.location.href = './index.html#list-section';
   }catch(error){
     console.error('홈 페이지 이동 오류:',error);
     if(window.location.protocol==='file:'){
@@ -285,7 +286,7 @@ function initFabricMode(){
 }
 window.addEventListener('load',()=>{initFabricMode();});
 document.addEventListener('keydown',e=>{
-  if(e.key==='h'||e.key==='H'||e.key==='Home')window.location.href='index.html#list-section';
+  if(e.key==='h'||e.key==='H'||e.key==='Home')window.location.href='./index.html#list-section';
 });
 </script>
 </body>
