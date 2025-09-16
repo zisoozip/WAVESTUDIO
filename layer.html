@@ -7,7 +7,7 @@
 <style>body{margin:0;padding:0;display:flex;height:100vh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;background-color:#fff;color:#000}#home-button{position:fixed;left:20px;top:20px;z-index:1001;width:50px;height:50px;background:linear-gradient(135deg,rgba(0,0,0,0.1) 0,rgba(0,0,0,0.2) 100%);backdrop-filter:blur(20px);border:1px solid rgba(0,0,0,0.15);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.3)}#home-button:hover{background:linear-gradient(135deg,rgba(0,0,0,0.2) 0,rgba(0,0,0,0.3) 100%);transform:translateY(-2px) scale(1.05);box-shadow:0 12px 40px rgba(0,0,0,0.4)}#home-button svg{width:24px;height:24px;fill:rgba(102,102,102,0.8);transition:all .3s ease}#home-button:hover svg{fill:rgba(102,102,102,1)}.left-panel{width:50%;background-color:#fff;padding:20px;position:fixed;height:100vh;overflow:hidden;border-right:1px solid #000;box-sizing:border-box;display:flex;color:#000;flex-direction:column}.right-panel{width:50%;background-color:#fff;padding:20px;overflow-y:auto;margin-left:50%;box-sizing:border-box;display:flex;color:#000;flex-direction:column}.content,.left-content{max-width:100%;text-align:left}.content img{max-width:20%;margin:10px;cursor:pointer}.content img{max-width:20%;margin:10px;cursor:pointer;border:.2px solid #d1d1d1}.left-main-image{max-width:60%;margin:20px auto;display:block;border:.2px solid #d1d1d1}.left-main-image{max-width:60%;margin:20px auto;display:block}.image-group{display:flex;flex-wrap:wrap;justify-content:center}.header{position:fixed;top:0;left:0;width:50%;background-color:#fff;padding:20px;z-index:10;text-align:left;box-sizing:border-box;border-bottom:1px solid #000;font-weight:bold;color:#000}.right-header{position:fixed;top:0;left:50%;width:50%;background-color:#fff;padding:20px;z-index:10;text-align:left;box-sizing:border-box;border-bottom:1px solid #000;font-weight:bold;color:#000}.content-wrapper{margin-top:60px;flex-grow:1}.popup{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);z-index:1000;justify-content:center;align-items:center}.popup img{max-width:90%;max-height:90%}.close-btn{position:absolute;top:20px;right:20px;color:#fff;font-size:30px;cursor:pointer}@media screen and (max-width:1024px){.content img{max-width:45%}}@media screen and (max-width:768px){body{flex-direction:column;overflow-y:auto;height:auto}#home-button{width:40px;height:40px;left:15px;top:15px}#home-button svg{width:20px;height:20px}.left-panel{width:100%;position:relative;height:auto;min-height:200px;border-right:0;border-bottom:1px solid #000}.right-panel{width:100%;margin-left:0;margin-top:0}.header{width:100%;position:relative}.right-header{width:100%;left:0;top:auto;position:relative}.content-wrapper{margin-top:20px}.content img{max-width:90%}}@media screen and (max-width:480px){#home-button{width:35px;height:35px;left:10px;top:10px}#home-button svg{width:18px;height:18px}.image-group{flex-direction:column;align-items:center}.content img{max-width:100%}.header,.right-header{padding:15px}.left-panel,.right-panel{padding:15px}.left-main-image{max-width:100%}}</style>
 </head>
 <body>
-<a id="home-button" href="index.html#list-section" aria-label="홈으로 이동">
+<a id="home-button" href="#" aria-label="홈으로 이동">
 <svg viewBox="0 0 24 24">
 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
 </svg>
@@ -64,5 +64,32 @@
 }
 document.querySelectorAll('.image-group img, .left-main-image').forEach(img=>{img.addEventListener('click',function(){const popup=document.getElementById('imagePopup');const popupImg=document.getElementById('popupImage');popupImg.src=this.src;popup.style.display='flex';});});function closePopup(){document.getElementById('imagePopup').style.display='none';}
 document.getElementById('imagePopup').addEventListener('click',function(e){if(e.target===this){closePopup();}});</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('home-button');
+  if (!btn) return;
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    // Compute current directory path: remove filename from pathname.
+    var basePath = window.location.pathname.replace(/[^\/]*$/, '');
+    // Navigate to index.html#list-section in the SAME directory by default.
+    var target = basePath + 'index.html#list-section';
+    // If that 404s (rare), try parent directory fallback.
+    fetch(target, {method: 'HEAD'}).then(function(res){
+      if (res.ok) {
+        window.location.href = target;
+      } else {
+        var parentTarget = basePath.replace(/[^\/]+\/$/, '') + 'index.html#list-section';
+        window.location.href = parentTarget;
+      }
+    }).catch(function(){
+      // Last resort: just try index.html at current dir
+      window.location.href = target;
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
