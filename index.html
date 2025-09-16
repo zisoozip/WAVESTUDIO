@@ -385,5 +385,57 @@ function schedulePasses(){ensureFit();requestAnimationFrame(ensureFit);setTimeou
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",schedulePasses,{once:true});}else{schedulePasses();}
 try{new ResizeObserver(schedulePasses).observe(document.documentElement);}catch(e){}
 window.addEventListener("resize",schedulePasses);window.addEventListener("orientationchange",schedulePasses);})();</script>
+
+<!-- FIX: prevent duplicate menu rendering and anchor re-init -->
+<script>
+// A. Initialize list-section once
+(function() {
+  const section = document.getElementById('list-section');
+  if (!section) return;
+  if (window.__LIST_SECTION_INIT__) return;
+  window.__LIST_SECTION_INIT__ = true;
+
+  // If any render() runs again later, we still try to keep structure clean.
+  const list = section.querySelector('.menu, .menu-wrap, .menu-inner, .menu-list');
+  if (list) {
+    // Keep only existing children order; no duplicates here.
+    list.replaceChildren(...list.children);
+  }
+})();
+
+// B. Remove duplicated items if they already got appended
+(function() {
+  const section = document.getElementById('list-section');
+  if (!section) return;
+  const candidates = section.querySelectorAll('.menu, .menu-wrap, .menu-inner, .menu-list');
+  candidates.forEach((list) => {
+    const seen = new Set();
+    Array.from(list.children).forEach((el) => {
+      const key = (el.dataset && el.dataset.id) ? el.dataset.id : (el.textContent || '').trim();
+      if (seen.has(key)) {
+        el.remove();
+      } else {
+        seen.add(key);
+      }
+    });
+  });
+})();
+
+// C. Stop re-render on hash navigation; scroll only
+(function() {
+  let handling = false;
+  window.addEventListener('hashchange', () => {
+    if (handling) return;
+    handling = true;
+    const id = (location.hash || '').replace(/^#/, '');
+    const target = document.getElementById(id);
+    if (target && target.scrollIntoView) {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+    requestAnimationFrame(() => { handling = false; });
+  });
+})();
+</script>
+
 </body>
 </html>
