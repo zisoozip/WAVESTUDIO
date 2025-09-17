@@ -58,6 +58,23 @@
     -ms-overflow-style: auto !important;
     scrollbar-width: auto !important;
   }
+  /* 메뉴 목록 텍스트 가려짐 방지 */
+.list-section .marquee-canvas {
+  position: relative !important;
+  z-index: 10 !important;  /* 텍스트/캔버스를 항상 위에 */
+}
+
+.list-section .hr-line {
+  position: relative !important;
+  z-index: 0 !important;   /* 선은 항상 뒤에 */
+  pointer-events: none !important; /* 마우스 이벤트 차단 */
+  background: rgba(0,0,0,0.18);    /* 밝은 모드 */
+}
+
+.dark-mode .list-section .hr-line {
+  background: rgba(255,255,255,0.18);
+}
+
 </style>
 
 </head>
@@ -510,3 +527,4 @@ window.addEventListener("resize",schedulePasses);window.addEventListener("orient
 
 </body>
 </html>
+
