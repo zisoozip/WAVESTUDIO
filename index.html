@@ -604,29 +604,6 @@ html, body {
 <section class="horizontal-section main-section first-section">
 <div class=wave-container>
 
-<!-- Rain Effect SVG overlay -->
-<svg class="rain-svg" viewBox="0 0 1400 800" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="rainGradientLight" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0%" stop-color="#1E90FF" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#1E90FF" stop-opacity="0.2"/>
-    </linearGradient>
-    <linearGradient id="rainGradientDark" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0%" stop-color="#87CEEB" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#87CEEB" stop-opacity="0.2"/>
-    </linearGradient>
-    <filter id="rippleGlow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <g id="rainDrops"></g>
-  <g id="ripples"></g>
-</svg>
-
 <svg class=wave-svg viewBox="-500 100 1400 600" xmlns=http://www.w3.org/2000/svg preserveAspectRatio="xMidYMid meet">
 <defs>
 <filter id=waveDistort>
@@ -1035,114 +1012,9 @@ if (appBadge) {
 
 
 
-<script>
-/* === Rain & Thinner, Natural Elliptical Ripple script === */
-(() => {
-  class RainEffect {
-    constructor() {
-      this.rainContainer = document.getElementById('rainDrops');
-      this.rippleContainer = document.getElementById('ripples');
-      this.rainDrops = [];
-      this.ripples = [];
-      this.maxRainDrops = 20;
-      this.maxRipples = 14;
-      this.isRunning = false;
-      this.viewW = 1400; this.viewH = 800;
-      this.start();
-    }
-    start(){
-      if (this.isRunning) return;
-      this.isRunning = true;
-      this.loop();
-    }
-    loop(){
-      if (!this.isRunning) return;
-      if (this.rainDrops.length < this.maxRainDrops && Math.random() < 0.4) this.spawnDrop();
-      this.stepDrops();
-      this.stepRipples();
-      requestAnimationFrame(() => this.loop());
-    }
-    spawnDrop(){
-      const x = Math.random() * this.viewW;
-      const y = -30;
-      const speed = 4 + Math.random() * 2.5;
-      const len = 12 + Math.random() * 20;
-      const op = 0.3 + Math.random() * 0.4;
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('class', 'rain-drop');
-      line.setAttribute('x1', x); line.setAttribute('y1', y);
-      line.setAttribute('x2', x); line.setAttribute('y2', y + len);
-      line.setAttribute('stroke-width', '1');
-      line.setAttribute('opacity', op);
-      line.setAttribute('stroke-linecap', 'round');
-      this.rainContainer.appendChild(line);
-      this.rainDrops.push({el: line, x, y, speed, len, op});
-    }
-    stepDrops(){
-      for (let i = this.rainDrops.length - 1; i >= 0; i--) {
-        const d = this.rainDrops[i];
-        d.y += d.speed;
-        d.el.setAttribute('y1', d.y);
-        d.el.setAttribute('y2', d.y + d.len);
-        if (d.y > 480 + Math.random()*120) {
-          this.spawnRipple(d.x, d.y + d.len);
-          d.el.remove();
-          this.rainDrops.splice(i, 1);
-        } else if (d.y > this.viewH + 40) {
-          d.el.remove();
-          this.rainDrops.splice(i, 1);
-        }
-      }
-    }
-    spawnRipple(x, y){
-      if (this.ripples.length >= this.maxRipples) return;
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('filter', 'url(#rippleGlow)');
-      const ellipses = [];
-      for (let i=0;i<3;i++){
-        const e = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-        e.setAttribute('cx', x);
-        e.setAttribute('cy', y);
-        e.setAttribute('rx', 0);
-        e.setAttribute('ry', 0);
-        e.setAttribute('fill', 'none');
-        e.setAttribute('class', 'ripple');
-        e.setAttribute('stroke-width', String(0.6 - i*0.1)); // very thin lines
-        e.setAttribute('opacity', String(0.65 - i*0.18));
-        g.appendChild(e);
-        ellipses.push(e);
-      }
-      this.rippleContainer.appendChild(g);
-      this.ripples.push({el: g, ellipses, r: 0, maxR: 70 + Math.random()*40, op: 0.7});
-    }
-    stepRipples(){
-      for (let i = this.ripples.length - 1; i >= 0; i--) {
-        const r = this.ripples[i];
-        r.r += 0.6; // slower expansion
-        r.op -= 0.012; // slower fade
-        r.ellipses.forEach((e, idx) => {
-          const rr = Math.max(0, r.r - idx*10);
-          const rx = rr * 1.7; // wider horizontally
-          const ry = rr * 0.55; // flatter vertically
-          const oo = Math.max(0, r.op - idx*0.15);
-          e.setAttribute('rx', rx.toFixed(1));
-          e.setAttribute('ry', ry.toFixed(1));
-          e.setAttribute('opacity', oo.toFixed(2));
-        });
-        if (r.r >= r.maxR || r.op <= 0) {
-          r.el.remove();
-          this.ripples.splice(i, 1);
-        }
-      }
-    }
-  }
-  const run = () => { try { new RainEffect(); } catch(e){ console.error(e); } };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
-})();
-</script>
 
 
 
 </body>
 </html>
+
