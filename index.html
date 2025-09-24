@@ -577,6 +577,8 @@ html, body {
 </style>
 <!-- === End desktop targeted tuning === -->
 
+
+<style>#list-section{overflow:hidden;}</style>
 </head>
 <body class=light-mode>
 <div class=app-status-bar></div>
@@ -973,10 +975,10 @@ document.getElementById('menuButton')?.addEventListener('touchend',(e)=>{
 
   window.addEventListener('DOMContentLoaded', applyHash);
   window.addEventListener('load', applyHash);
-  window.addEventListener('hashchange', applyHash);
+  /* disabled: repeated hash forcing */ // window.addEventListener('hashchange', applyHash);
 })();
 
-if('ontouchstart' in window || navigator.maxTouchPoints > 0){
+if (window.matchMedia('(pointer: coarse)').matches) {
   document.body.style.overflow = 'hidden';
   document.documentElement.style.overflow = 'hidden';
   
@@ -987,7 +989,7 @@ if('ontouchstart' in window || navigator.maxTouchPoints > 0){
   };
   
   document.addEventListener('touchmove', preventScroll, { passive: false });
-  document.addEventListener('wheel', preventScroll, { passive: false });
+  /* wheel handler disabled to allow slide navigation on desktops */ // document.addEventListener('wheel', preventScroll, { passive: false });
 }
 
 const statusBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
@@ -1014,6 +1016,25 @@ if (appBadge) {
 
 
 
+
+
+<script>
+// Global wheel delegation so that scrolling over #list-section still navigates slides
+(function () {
+  function onWheel(e) {
+    if (window.appState && typeof window.appState.handleWheel === 'function') {
+      // Only intercept when the pointer is over the horizontal container or list-section
+      const target = e.target.closest ? e.target.closest('.horizontal-container, #list-section') : null;
+      if (target) {
+        e.preventDefault();
+        window.appState.handleWheel(e);
+      }
+    }
+  }
+  // attach once
+  window.addEventListener('wheel', onWheel, { passive: false });
+})();
+</script>
 
 </body>
 </html>
