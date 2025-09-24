@@ -577,8 +577,6 @@ html, body {
 </style>
 <!-- === End desktop targeted tuning === -->
 
-
-<style>#list-section{overflow:hidden;}</style>
 </head>
 <body class=light-mode>
 <div class=app-status-bar></div>
@@ -970,12 +968,13 @@ document.getElementById('menuButton')?.addEventListener('touchend',(e)=>{
         window.goToSlide(index);
       }
       window.scrollTo(0, 0);
+      if (history.replaceState) { history.replaceState(null, '', window.location.pathname); } else { window.location.hash = ''; }
     }
   }
 
   window.addEventListener('DOMContentLoaded', applyHash);
   window.addEventListener('load', applyHash);
-  /* disabled: repeated hash forcing */ // window.addEventListener('hashchange', applyHash);
+/* removed hashchange listener */
 })();
 
 if (window.matchMedia('(pointer: coarse)').matches) {
@@ -989,7 +988,7 @@ if (window.matchMedia('(pointer: coarse)').matches) {
   };
   
   document.addEventListener('touchmove', preventScroll, { passive: false });
-  /* wheel handler disabled to allow slide navigation on desktops */ // document.addEventListener('wheel', preventScroll, { passive: false });
+  /* removed wheel preventer to allow slide navigation */
 }
 
 const statusBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
@@ -1019,11 +1018,9 @@ if (appBadge) {
 
 
 <script>
-// Global wheel delegation so that scrolling over #list-section still navigates slides
 (function () {
   function onWheel(e) {
     if (window.appState && typeof window.appState.handleWheel === 'function') {
-      // Only intercept when the pointer is over the horizontal container or list-section
       const target = e.target.closest ? e.target.closest('.horizontal-container, #list-section') : null;
       if (target) {
         e.preventDefault();
@@ -1031,7 +1028,6 @@ if (appBadge) {
       }
     }
   }
-  // attach once
   window.addEventListener('wheel', onWheel, { passive: false });
 })();
 </script>
