@@ -973,10 +973,10 @@ document.getElementById('menuButton')?.addEventListener('touchend',(e)=>{
 
   window.addEventListener('DOMContentLoaded', applyHash);
   window.addEventListener('load', applyHash);
-  window.addEventListener('hashchange', applyHash);
+  /* disabled: repeated hash forcing */ // window.addEventListener('hashchange', applyHash);
 })();
 
-if('ontouchstart' in window || navigator.maxTouchPoints > 0){
+if (window.matchMedia('(pointer: coarse)').matches) {
   document.body.style.overflow = 'hidden';
   document.documentElement.style.overflow = 'hidden';
   
@@ -987,7 +987,7 @@ if('ontouchstart' in window || navigator.maxTouchPoints > 0){
   };
   
   document.addEventListener('touchmove', preventScroll, { passive: false });
-  document.addEventListener('wheel', preventScroll, { passive: false });
+  /* wheel handler disabled to allow slide navigation on desktops */ // document.addEventListener('wheel', preventScroll, { passive: false });
 }
 
 const statusBarHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
@@ -1017,4 +1017,5 @@ if (appBadge) {
 
 </body>
 </html>
+
 
