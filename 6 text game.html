@@ -875,14 +875,23 @@ let drawingInput = null;
   });
   
   function updateSmoothMouse() {
-    smoothMouseX += (mouseX - smoothMouseX) * 0.2;
-    smoothMouseY += (mouseY - smoothMouseY) * 0.2;
+    // Smoother mouse tracking with higher interpolation
+    const smoothFactor = 0.25; // Increased from 0.2 for more responsiveness
+    smoothMouseX += (mouseX - smoothMouseX) * smoothFactor;
+    smoothMouseY += (mouseY - smoothMouseY) * smoothFactor;
+    
+    // Add point to trail with adaptive distance
+    const minDistance = 3; // Reduced from 5 for smoother curves
     
     if (mouseTrail.length === 0 || 
         Math.hypot(smoothMouseX - mouseTrail[mouseTrail.length - 1].x,
-                   smoothMouseY - mouseTrail[mouseTrail.length - 1].y) > 5) {
+                   smoothMouseY - mouseTrail[mouseTrail.length - 1].y) > minDistance) {
       mouseTrail.push({ x: smoothMouseX, y: smoothMouseY, time: Date.now() });
-      if (mouseTrail.length > 500) mouseTrail.shift();
+      
+      // Keep trail at optimal length for smooth curves
+      if (mouseTrail.length > 800) {
+        mouseTrail.shift();
+      }
     }
   }
   
@@ -965,7 +974,8 @@ let drawingInput = null;
       angle: angle,
       scale: 1,
       opacity: 0.9,
-      birthTime: Date.now()
+      birthTime: Date.now(),
+      targetAngle: angle
     });
   }
   
@@ -988,44 +998,106 @@ let drawingInput = null;
   function animate() {
     updateSmoothMouse();
     
-    // Update character positions along trail
+    // Each character moves independently with its own physics
+    const time = Date.now() * 0.001;
+    
     for (let i = 0; i < drawnChars.length; i++) {
-      const charIndex = Math.min(
-        Math.floor((i / drawnChars.length) * mouseTrail.length),
-        mouseTrail.length - 1
-      );
+      const char = drawnChars[i];
+      const age = (time * 1000 - char.birthTime) * 0.001;
       
-      if (charIndex >= 0 && mouseTrail[charIndex]) {
-        const targetPos = mouseTrail[charIndex];
-        drawnChars[i].x += (targetPos.x - drawnChars[i].x) * 0.08;
-        drawnChars[i].y += (targetPos.y - drawnChars[i].y) * 0.08;
+      // Each character has independent circular motion
+      const circleRadius = 15 + (i % 10) * 3;
+      const circleSpeed = 0.8 + (i % 7) * 0.2;
+      const phaseOffset = i * 0.8;
+      
+      // Independent orbital motion around its target point
+      const orbitalX = Math.cos(time * circleSpeed + phaseOffset) * circleRadius;
+      const orbitalY = Math.sin(time * circleSpeed + phaseOffset) * circleRadius;
+      
+      // Find target position on trail
+      const progress = i / Math.max(drawnChars.length - 1, 1);
+      const trailIndex = Math.floor(progress * Math.max(mouseTrail.length - 1, 0));
+      
+      if (trailIndex >= 0 && trailIndex < mouseTrail.length) {
+        const targetPos = mouseTrail[trailIndex];
         
-        if (charIndex > 0) {
-          const prevPos = mouseTrail[charIndex - 1];
-          const targetAngle = Math.atan2(
-            targetPos.y - prevPos.y,
-            targetPos.x - prevPos.x
-          );
-          drawnChars[i].angle += (targetAngle - drawnChars[i].angle) * 0.1;
+        // Independent floating motion
+        const floatX = Math.sin(time * 1.5 + i * 1.2) * 12;
+        const floatY = Math.cos(time * 1.8 + i * 0.9) * 12;
+        
+        // Additional wave motion
+        const waveX = Math.sin(time * 2 + i * 0.5) * 8;
+        const waveY = Math.cos(time * 2.5 + i * 0.7) * 8;
+        
+        // Combine all motions
+        const finalTargetX = targetPos.x + orbitalX + floatX + waveX;
+        const finalTargetY = targetPos.y + orbitalY + floatY + waveY;
+        
+        // Smooth interpolation with spring-like physics
+        const springStrength = 0.08 + Math.sin(time + i) * 0.02;
+        const dx = finalTargetX - char.x;
+        const dy = finalTargetY - char.y;
+        
+        char.x += dx * springStrength;
+        char.y += dy * springStrength;
+        
+        // Independent rotation for each character
+        const rotationSpeed = 0.5 + (i % 5) * 0.3;
+        const baseRotation = time * rotationSpeed + i * 2;
+        
+        // Add direction-based rotation
+        if (trailIndex > 0 && trailIndex < mouseTrail.length - 1) {
+          const prevPos = mouseTrail[trailIndex - 1];
+          const nextPos = mouseTrail[Math.min(trailIndex + 1, mouseTrail.length - 1)];
+          const pathAngle = Math.atan2(nextPos.y - prevPos.y, nextPos.x - prevPos.x);
+          
+          // Mix path following with independent rotation
+          const targetAngle = pathAngle + Math.sin(baseRotation) * 0.5;
+          
+          let angleDiff = targetAngle - char.angle;
+          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+          
+          char.angle += angleDiff * 0.1;
+        } else {
+          // Free rotation when not following path
+          char.angle += 0.02 * rotationSpeed;
         }
         
-        const age = Date.now() - drawnChars[i].birthTime;
+        // Independent scale pulsing
+        const scaleFreq = 1.5 + (i % 6) * 0.5;
+        const scalePulse = 1 + Math.sin(time * scaleFreq + i * 1.5) * 0.08;
+        char.scale = scalePulse;
+        
+        // Independent opacity variation
+        const opacityWave = Math.sin(time * 2 + i * 0.6) * 0.1;
+        const baseOpacity = 0.85 + opacityWave;
+        
+        // Fade out old characters
         const maxAge = 30000;
-        if (age > maxAge) {
-          drawnChars[i].opacity = Math.max(0, 0.9 - (age - maxAge) / 10000);
+        const ageInMs = Date.now() - char.birthTime;
+        if (ageInMs > maxAge) {
+          char.opacity = Math.max(0, baseOpacity - (ageInMs - maxAge) / 10000);
+        } else {
+          char.opacity = baseOpacity;
         }
       }
     }
     
     redrawCanvas();
     
-    // Draw composing preview
+    // Draw composing preview with free floating motion
     if (currentMode === 'maximal' && composingText) {
+      const floatX = Math.sin(time * 3) * 5;
+      const floatY = Math.cos(time * 2.5) * 5;
+      const rotate = Math.sin(time * 1.5) * 0.1;
+      
       ctx.save();
-      ctx.translate(smoothMouseX, smoothMouseY);
+      ctx.translate(smoothMouseX + floatX, smoothMouseY + floatY);
+      ctx.rotate(rotate);
       ctx.font = `${fontSize}px '${currentFont}', sans-serif`;
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      const pulse = Math.sin(Date.now() * 0.01) * 0.1 + 0.9;
+      const pulse = Math.sin(time * 3) * 0.15 + 0.85;
       ctx.globalAlpha = pulse;
       ctx.fillText(composingText, 0, 0);
       ctx.restore();
@@ -1554,7 +1626,8 @@ let typoHiddenInput = null;
 // 홈 버튼
 document.getElementById('home-button').addEventListener('click', (e) => {
   e.preventDefault();
-  alert('홈 기능은 실제 환경에서 구현하세요!');
+  // index.html의 list-section으로 이동
+  window.location.href = 'index.html#list-section';
 });
 </script>
 </body>
