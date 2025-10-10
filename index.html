@@ -798,6 +798,58 @@ transform="scale(1,-1) translate(0,-800)" style="display: none;">로고 를 업�
 <div class=app-home-indicator></div>
 <div class=app-navigation-gesture></div>
 
+<!-- Background Music -->
+<audio id="bgMusic" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// Background Music Controller
+(function initBackgroundMusic() {
+  const bgMusic = document.getElementById('bgMusic');
+  if (!bgMusic) return;
+
+  // Set volume (0.0 to 1.0)
+  bgMusic.volume = 0.5;
+
+  // Auto-play with user interaction handling
+  function attemptPlay() {
+    const playPromise = bgMusic.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          console.log('Background music started');
+          // Remove event listeners after successful play
+          document.removeEventListener('click', attemptPlay);
+          document.removeEventListener('touchstart', attemptPlay);
+          document.removeEventListener('keydown', attemptPlay);
+        })
+        .catch(error => {
+          console.log('Autoplay prevented, waiting for user interaction');
+        });
+    }
+  }
+
+  // Try to play immediately
+  attemptPlay();
+
+  // If autoplay is blocked, play on first user interaction
+  document.addEventListener('click', attemptPlay, { once: true });
+  document.addEventListener('touchstart', attemptPlay, { once: true });
+  document.addEventListener('keydown', attemptPlay, { once: true });
+
+  // Pause when page is hidden
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      bgMusic.pause();
+    } else {
+      bgMusic.play().catch(() => {});
+    }
+  });
+})();
+</script>
+
 <script src=https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js></script>
 <script>const Utils={throttle(func,limit){let inThrottle;return function(){const args=arguments;const context=this;if(!inThrottle){func.apply(context,args);inThrottle=true;setTimeout(()=>inThrottle=false,limit);}}},debounce(func,wait){let timeout;return function executedFunction(...args){const later=()=>{clearTimeout(timeout);func(...args);};clearTimeout(timeout);timeout=setTimeout(later,wait);};}};
 
@@ -1034,5 +1086,4 @@ if (appBadge) {
 
 </body>
 </html>
-
 
