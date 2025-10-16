@@ -1,77 +1,127 @@
 <!DOCTYPE html>
-<html lang=ko>
+<html lang="ko">
 <head>
-<meta charset=UTF-8>
-<meta name=viewport content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2분할 레이아웃</title>
 <style>
-  body{margin:0;padding:0;display:flex;height:100vh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;background-color:#fff;color:#000}
+  :root{
+    --header-h: 56px;   /* 좌/우 헤더 고정 높이 */
+    --gutter-x: 20px;   /* 좌우 패딩 */
+    --rule: 1px;        /* 헤더 하단 경계선 두께 */
+    --panel-split: 50%; /* 좌/우 패널 폭 */
+  }
 
-  /* 헤더 안으로 들어간 홈 버튼 */
+  body{
+    margin:0; padding:0; display:flex; height:100vh; overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;
+    background-color:#fff; color:#000;
+  }
+
+  /* 좌/우 패널 */
+  .left-panel{
+    width:var(--panel-split);
+    background-color:#fff;
+    padding:20px;
+    position:fixed;
+    height:100vh;
+    overflow:hidden;
+    border-right:1px solid #000;
+    box-sizing:border-box;
+    display:flex; flex-direction:column; color:#000;
+  }
+  .right-panel{
+    width:var(--panel-split);
+    background-color:#fff;
+    padding:20px;
+    overflow-y:auto;
+    margin-left:var(--panel-split);
+    box-sizing:border-box;
+    display:flex; flex-direction:column; color:#000;
+  }
+
+  .content,.left-content{max-width:100%; text-align:left}
+  .content img{max-width:20%; margin:10px; cursor:pointer; border:.2px solid #d1d1d1}
+  .left-main-image{
+    max-width:60%; margin:20px auto; display:block;
+    border:.2px solid #d1d1d1; transition:opacity 0.8s ease-in-out;
+  }
+  .left-main-image.is-fading{opacity:0}
+  .image-group{display:flex; flex-wrap:wrap; justify-content:center}
+
+  /* 공통 헤더(좌/우 규격 동일) */
+  .header,
+  .right-header{
+    position:fixed; top:0; background-color:#fff;
+    width:var(--panel-split);
+    height:var(--header-h);
+    padding:0 var(--gutter-x);
+    display:flex; align-items:center; gap:12px;
+    box-sizing:border-box;
+    border-bottom:var(--rule) solid #000;
+    z-index:10;
+  }
+  .header{left:0;}
+  .right-header{left:var(--panel-split);}
+
+  /* 홈 버튼(헤더 플로우 안, 가장 왼쪽) */
   #home-button{
-    position:static; /* 헤더 플로우 안에 배치 */
+    position:static;
     z-index:1001;
-    width:40px;height:40px;
+    width:40px; height:40px;
     background:linear-gradient(135deg,rgba(0,0,0,0.1) 0,rgba(0,0,0,0.2) 100%);
     backdrop-filter:blur(20px);
     border:1px solid rgba(0,0,0,0.15);
     border-radius:50%;
     cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     transition:all .3s ease;
     box-shadow:0 6px 20px rgba(0,0,0,0.25);
     text-decoration:none;
   }
-  #home-button:hover{background:linear-gradient(135deg,rgba(0,0,0,0.2) 0,rgba(0,0,0,0.3) 100%);transform:translateY(-1px) scale(1.03);box-shadow:0 10px 28px rgba(0,0,0,0.35)}
-  #home-button svg{width:20px;height:20px;fill:rgba(102,102,102,0.85);transition:all .3s ease}
+  #home-button:hover{
+    background:linear-gradient(135deg,rgba(0,0,0,0.2) 0,rgba(0,0,0,0.3) 100%);
+    transform:translateY(-1px) scale(1.03);
+    box-shadow:0 10px 28px rgba(0,0,0,0.35);
+  }
+  #home-button svg{width:20px; height:20px; fill:rgba(102,102,102,0.85); transition:all .3s ease}
   #home-button:hover svg{fill:rgba(102,102,102,1)}
 
-  .left-panel{width:50%;background-color:#fff;padding:20px;position:fixed;height:100vh;overflow:hidden;border-right:1px solid #000;box-sizing:border-box;display:flex;color:#000;flex-direction:column}
-  .right-panel{width:50%;background-color:#fff;padding:20px;overflow-y:auto;margin-left:50%;box-sizing:border-box;display:flex;color:#000;flex-direction:column}
-  .content,.left-content{max-width:100%;text-align:left}
-  .content img{max-width:20%;margin:10px;cursor:pointer;border:.2px solid #d1d1d1}
-  .left-main-image{max-width:60%;margin:20px auto;display:block;border:.2px solid #d1d1d1;transition:opacity 0.8s ease-in-out}
-  /* 교차 전환 시 페이드 아웃 */
-  .left-main-image.is-fading{opacity:0}
+  .header-title{display:inline-block; line-height:1; font-weight:bold; color:#000}
 
-  .image-group{display:flex;flex-wrap:wrap;justify-content:center}
+  /* 본문은 헤더 높이만큼 내려놓기(초기값: 변수 기반) */
+  .content-wrapper{margin-top:calc(var(--header-h) + var(--rule)); flex-grow:1}
 
-  /* 헤더: 버튼 + 텍스트를 한 줄 정렬 */
-  .header{
-    position:fixed;top:0;left:0;width:50%;
-    background-color:#fff;padding:12px 20px;
-    z-index:10;text-align:left;box-sizing:border-box;
-    border-bottom:1px solid #000;font-weight:bold;color:#000;
-    display:flex;align-items:center;gap:12px;
+  /* 반응형 */
+  @media screen and (max-width:1024px){
+    .content img{max-width:45%}
   }
-  .header-title{display:inline-block;line-height:1}
-
-  .right-header{position:fixed;top:0;left:50%;width:50%;background-color:#fff;padding:20px;z-index:10;text-align:left;box-sizing:border-box;border-bottom:1px solid #000;font-weight:bold;color:#000}
-  .content-wrapper{margin-top:60px;flex-grow:1}
-  .popup{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);z-index:1000;justify-content:center;align-items:center}
-  .popup img{max-width:90%;max-height:90%}
-  .close-btn{position:absolute;top:20px;right:20px;color:#fff;font-size:30px;cursor:pointer}
-
-  @media screen and (max-width:1024px){.content img{max-width:45%}}
 
   @media screen and (max-width:768px){
-    body{flex-direction:column;overflow-y:auto;height:auto}
-    /* 모바일에서 버튼 살짝 더 작게 */
-    #home-button{width:36px;height:36px}
-    #home-button svg{width:18px;height:18px}
+    body{flex-direction:column; overflow-y:auto; height:auto}
 
-    .left-panel{width:100%;position:relative;height:auto;min-height:200px;border-right:0;border-bottom:1px solid #000}
-    .right-panel{width:100%;margin-left:0;margin-top:0}
-    .header{width:100%;position:relative;padding:12px 15px}
-    .right-header{width:100%;left:0;top:auto;position:relative}
+    .left-panel{
+      width:100%; position:relative; height:auto; min-height:200px;
+      border-right:0; border-bottom:1px solid #000;
+    }
+    .right-panel{width:100%; margin-left:0; margin-top:0}
+
+    .header,
+    .right-header{
+      position:relative; width:100%; left:0;
+      height:auto; padding:12px 15px;
+    }
     .content-wrapper{margin-top:20px}
     .content img{max-width:90%}
+
+    #home-button{width:36px; height:36px}
+    #home-button svg{width:18px; height:18px}
   }
 
   @media screen and (max-width:480px){
-    #home-button{width:32px;height:32px}
-    #home-button svg{width:16px;height:16px}
-    .image-group{flex-direction:column;align-items:center}
+    #home-button{width:32px; height:32px}
+    #home-button svg{width:16px; height:16px}
+    .image-group{flex-direction:column; align-items:center}
     .content img{max-width:100%}
     .header,.right-header{padding:12px 15px}
     .left-panel,.right-panel{padding:15px}
@@ -81,9 +131,9 @@
 </head>
 <body>
 
-<div class=left-panel>
+<!-- 왼쪽 패널 -->
+<div class="left-panel">
   <div class="header">
-    <!-- 헤더 내부 왼쪽에 홈 버튼 배치 -->
     <a id="home-button" href="#" aria-label="홈으로 이동">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -94,7 +144,7 @@
 
   <div class="left-content content-wrapper">
     <p>파동과 선이 겹쳐지며 만들어내는 장면을 기록합니다 이곳은 고정된 공간으로, 작품의 흐름을 안내하는 역할을 합니다.</p>
-    <!-- ▼ 여기의 data-rotate-srcs 값을 원하는 두 장으로 바꾸세요 (| 로 구분) -->
+    <!-- ▼ data-rotate-srcs는 | 로 구분된 두 장 -->
     <img
       src="image/z.png"
       data-rotate-srcs="image/z.png|image/w.png"
@@ -104,18 +154,23 @@
   </div>
 </div>
 
-<div class=right-panel>
-  <div class=right-header>Mini Postcard</div>
+<!-- 오른쪽 패널 -->
+<div class="right-panel">
+  <div class="right-header">Mini Postcard</div>
+
   <div class="content content-wrapper">
     <p>이미지와 텍스트가 교차하며 전개되는 공간입니다 각 장면은 파동처럼 이어지고, 사용자는 이를 따라가며 새로운 감각과 시각적 경험을 탐색할 수 있습니다.</p>
-    <div class=image-group>
+
+    <div class="image-group">
       <img src="image/01 (6)6.png" alt="사진 1">
       <img src="image/01 (3).png" alt="사진 2">
       <img src="image/01 (5)5.png" alt="사진 5">
       <img src="image/01 (2).png" alt="사진 6">
     </div>
+
     <p>사진과 기록이 쌓여가며 하나의 이야기로 확장됩니다 단순한 나열이 아니라 흐름과 리듬 속에서 읽히는 공간 그 안에서 작은 파편들이 모여 전체를 완성합니다.</p>
-    <div class=image-group>
+
+    <div class="image-group">
       <img src="image/01 (4).png" alt="사진 3">
       <img src="image/01 (3).png" alt="사진 4">
       <img src="image/01 (5).png" alt="사진 5">
@@ -128,9 +183,10 @@
   </div>
 </div>
 
-<div class=popup id=imagePopup>
-  <span class=close-btn onclick=closePopup()>×</span>
-  <img id=popupImage src>
+<!-- 팝업 -->
+<div class="popup" id="imagePopup">
+  <span class="close-btn" onclick="closePopup()">×</span>
+  <img id="popupImage" src>
 </div>
 
 <script>
@@ -176,11 +232,9 @@ document.getElementById('imagePopup').addEventListener('click',function(e){if(e.
   const imgEl = document.querySelector('.left-main-image');
   if (!imgEl) return;
 
-  // data-rotate-srcs="a|b" 에서 두 장 추출
   const listAttr = imgEl.getAttribute('data-rotate-srcs') || '';
   const list = listAttr.split('|').map(s => s.trim()).filter(Boolean);
 
-  // 유효한 2장만 사용 (안 넣었으면 현재 src 기준으로 중복 방지)
   let sources = [];
   if (list.length >= 2) {
     sources = [list[0], list[1]];
@@ -189,19 +243,13 @@ document.getElementById('imagePopup').addEventListener('click',function(e){if(e.
     const fallback = current;
     sources = [current, fallback];
   }
-
-  // 두 장이 서로 다를 때만 동작
   if (sources[0] === sources[1]) return;
 
-  // 프리로드
-  sources.forEach(src => {
-    const p = new Image();
-    p.src = src;
-  });
+  sources.forEach(src => { const p = new Image(); p.src = src; });
 
   let idx = 0;
-  const DURATION = 2000;   // 교체 간격(ms) -> 2초
-  const FADE_MS  = 800;    // 페이드 시간(ms)
+  const DURATION = 2000;   // 2초 간격
+  const FADE_MS  = 800;    // 페이드 시간
 
   function swap(){
     imgEl.classList.add('is-fading');
@@ -212,12 +260,34 @@ document.getElementById('imagePopup').addEventListener('click',function(e){if(e.
     }, FADE_MS);
   }
 
-  // 마우스 올렸을 때 멈추고, 떼면 다시 진행 (작품 관람 UX)
   let timer = setInterval(swap, DURATION);
   imgEl.addEventListener('mouseenter', ()=>{ clearInterval(timer); });
   imgEl.addEventListener('mouseleave', ()=>{ timer = setInterval(swap, DURATION); });
 })();
 </script>
 
+<script>
+/* 헤더 실제 높이로 본문 상단 여백 정밀 스냅 */
+(function(){
+  function syncContentOffset(){
+    var hLeft = document.querySelector('.header');
+    var hRight = document.querySelector('.right-header');
+    if(!hLeft || !hRight) return;
+
+    // 좌/우 헤더의 실제 렌더 높이 중 더 큰 값 사용
+    var lh = Math.round(hLeft.getBoundingClientRect().height);
+    var rh = Math.round(hRight.getBoundingClientRect().height);
+    var headerH = Math.max(lh, rh);
+
+    document.querySelectorAll('.content-wrapper').forEach(function(el){
+      el.style.marginTop = (headerH + 1) + 'px'; // +1 = 경계선 두께
+    });
+  }
+  window.addEventListener('load', syncContentOffset);
+  window.addEventListener('resize', syncContentOffset);
+})();
+</script>
+
 </body>
 </html>
+
