@@ -116,13 +116,12 @@ body{
 /* 콘텐츠 */
 .content,.left-content{max-width:100%;text-align:left}
 .content-wrapper{
-  /* 헤더 바로 아래에 딱 붙게 */
-  padding-top: calc(var(--header-h) + var(--content-top-pad));
+  padding-top: calc(var(--header-h) + var(--content-top-pad)); /* 헤더 바로 아래 */
   flex-grow:1;
 }
 .left-content p,
 .content p{
-  margin: 6px 0 12px;  /* 문단 상단 여백 축소 */
+  margin: 6px 0 12px;
   line-height: 1.5;
 }
 .content img{
@@ -133,7 +132,7 @@ body{
 }
 .left-main-image{
   max-width:60%;
-  margin:12px auto 20px;   /* 위쪽 여백도 축소해 더 위로 */
+  margin:12px auto 20px;
   display:block;
   border:.2px solid #d1d1d1;
   transition:opacity 1s ease;
@@ -152,7 +151,7 @@ body{
   top:0;left:0;
   width:100%;height:100%;
   background-color:rgba(0,0,0,0.8);
-  z-index:1000;
+  z-index:1000; /* 헤더(1002)보다 낮게 유지: 홈버튼 클릭 가능 */
   justify-content:center;
   align-items:center;
 }
@@ -174,7 +173,7 @@ body{
   .left-panel{width:100%;position:relative;height:auto;min-height:200px;border-right:0;border-bottom:1px solid #000}
   .right-panel{width:100%;margin-left:0;margin-top:0}
   .header,.right-header{width:100%;position:relative}
-  .content-wrapper{padding-top: 14px;} /* 모바일에서는 더 바짝 */
+  .content-wrapper{padding-top: 14px;}
   .content img{max-width:90%}
 }
 @media screen and (max-width:480px){
@@ -191,7 +190,8 @@ body{
 <!-- 왼쪽 패널 -->
 <div class="left-panel">
   <div class="header">
-    <a id="home-button" href="#" aria-label="홈으로 이동">
+    <!-- ✨ href를 실제 홈 경로로! (프로젝트 루트면 './' 또는 './index.html') -->
+    <a id="home-button" href="./index.html" aria-label="홈으로 이동">
       <svg viewBox="0 0 24 24">
         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
       </svg>
@@ -240,7 +240,7 @@ body{
 </div>
 
 <script>
-// 이미지 클릭 시 팝업 표시
+// ===== 이미지 팝업 =====
 document.querySelectorAll('.image-group img, .left-main-image').forEach(img=>{
   img.addEventListener('click',function(){
     const popup=document.getElementById('imagePopup');
@@ -256,7 +256,7 @@ document.getElementById('imagePopup').addEventListener('click',function(e){
   if(e.target===this){closePopup();}
 });
 
-// 메인 이미지 전환 (z.png ↔ w.png)
+// ===== 메인 이미지 전환 (z.png ↔ w.png) =====
 const mainImage = document.getElementById('mainImage');
 const imageSources = ['image/z.png', 'image/w.png'];
 let index = 0;
@@ -268,6 +268,19 @@ setInterval(() => {
     mainImage.style.opacity = 1;
   }, 1000);
 }, 3000);
+
+// ===== 홈 버튼 안전 폴백 =====
+// - href가 비어있거나 '#'(테스트용)일 때도 홈으로 이동시킴
+// - GitHub Pages 프로젝트라면 './'가 가장 안전(루트로 튀지 않음)
+const homeBtn = document.getElementById('home-button');
+homeBtn.addEventListener('click', (e) => {
+  const href = homeBtn.getAttribute('href');
+  if (!href || href === '#') {
+    e.preventDefault();
+    // 프로젝트 루트(예: zisoozip.github.io/WAVESTUDIO/)로 이동
+    window.location.href = './';
+  }
+});
 </script>
 
 </body>
