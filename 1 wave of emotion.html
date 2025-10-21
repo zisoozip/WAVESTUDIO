@@ -9,7 +9,7 @@
 <style>
 :root{
   --gutter: 24px;      /* ← 좌측 여백(홈버튼 위치). 더 붙이려면 16px/12px/8px 등으로 줄여도 됨 */
-  --home-size: 50px;   /* 홈버튼 지름 */
+  --home-size: 50px;   /* 브랜드 텍스트 좌측 여백 계산용(버튼 실제 크기와 달라도 OK) */
   --gap: 16px;         /* 홈버튼과 텍스트 사이 간격 */
 }
 body{margin:0;overflow:hidden;font-family:'Pretendard',sans-serif;background-color:#000;color:white;cursor:none;font-weight:300}
@@ -53,23 +53,31 @@ button.active{border-color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.0
 .mode-button:hover{border-color:rgba(255,255,255,0.4)}
 .mode-button.active{border-color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.05)}
 
-/* ✅ 홈버튼: 좌측 고정(변수로 제어) */
+/* ✅ 홈버튼: 텍스트 화살표 전용(원형 제거) */
 #home-button{
   position:fixed;
   left:var(--gutter);
   top:20px;
   z-index:10000;
-  width:var(--home-size); height:var(--home-size);
   background:transparent;
-  border:1px solid rgba(255,255,255,0.2);
-  border-radius:50%;
+  border:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 6px;             /* 터치 타깃 확보 */
+  font-size:28px;              /* 화살표 크기 */
+  line-height:1;
+  color:rgba(255,255,255,0.85);
+  text-decoration:none;
   cursor:pointer!important;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .3s ease;pointer-events:all
+  transition:transform .15s ease, color .2s ease, opacity .2s ease;
+  user-select:none;
 }
-#home-button:hover{border-color:rgba(255,255,255,0.6);transform:scale(1.05)}
-#home-button svg{width:20px;height:20px;fill:rgba(255,255,255,0.6);transition:all .3s ease;pointer-events:none}
-#home-button:hover svg{fill:rgba(255,255,255,1)}
+#home-button:hover{
+  color:#fff;
+  transform:translateX(-2px);  /* 살짝 왼쪽으로 밀리며 피드백 */
+}
+/* SVG 스타일은 더 이상 사용하지 않으므로 제거됨 */
 
 @media(max-width:768px){
   .brand-title{font-size:1.5rem}
@@ -98,12 +106,8 @@ button.active{border-color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.0
   </div>
 </div>
 
-<a id="home-button" href="index.html#list-section">
-  <svg viewBox="0 0 24 24">
-    <path d="M15 18l-6-6 6-6" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</a>
-
+<!-- ✅ 화살표 텍스트만 있는 홈 버튼 -->
+<a id="home-button" href="index.html#list-section" aria-label="Go Home" title="Home">←</a>
 
 <div id="info">
   <div id="title">EMOTION WAVE</div>
