@@ -8,682 +8,157 @@
 <title>확장된 타이포그래피 애플리케이션</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Pretendard:wght@300;400;500;700;900&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Pretendard","Noto Sans KR",sans-serif;background-color:#fff;color:#000;
+  height:100vh;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  min-height:100vh;min-height:-webkit-fill-available;
+}
+html{height:-webkit-fill-available}
+#home-button{
+  position:fixed;left:20px;top:20px;z-index:2001;width:44px;height:44px;background:#fff;border:1px solid #ddd;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease;box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+#home-button:hover{background:#f8f9fa;border-color:#bbb;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+#home-button svg{width:20px;height:20px;fill:#666;transition:all .2s ease}
+#home-button:hover svg{fill:#333}
+.tab-container{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:1000;padding:8px;background:rgba(255,255,255,.95);
+  border:1px solid #e8e9ea;border-radius:24px;backdrop-filter:blur(10px);box-shadow:0 2px 12px rgba(0,0,0,.08)
+}
+.tab-button{
+  padding:8px 16px;border:1px solid #e8e9ea;background:#fff;border-radius:20px;cursor:pointer;transition:all .2s ease;color:#666;font-weight:400;font-size:13px;letter-spacing:.5px
+}
+.tab-button:hover{background:#f8f9fa;border-color:#ddd;color:#333}
+.tab-button.active{background:#000;color:#fff;border-color:#000}
+
+.module{width:100%;height:100vh;position:absolute;top:0;left:0;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.module.active{opacity:1;pointer-events:auto}
+
+/* Text Drawing */
+#text-drawing-module{background:#fff;cursor:crosshair}
+#canvas{position:absolute;inset:0;width:100%;height:100%}
+#controls{
+  position:fixed;bottom:20px;left:20px;background:rgba(255,255,255,.95);border:1px solid #e8e9ea;padding:16px;border-radius:12px;z-index:1000;backdrop-filter:blur(10px);
+  box-shadow:0 4px 16px rgba(0,0,0,.08);max-height:calc(100vh - 120px);overflow-y:auto
+}
+#controls button,#controls select{
+  margin:3px;padding:8px 14px;cursor:pointer;border:1px solid #e8e9ea;border-radius:20px;background:#fff;color:#666;font-weight:400;font-size:12px;transition:all .2s ease
+}
+#controls button:hover,#controls select:hover{background:#f8f9fa;color:#333;border-color:#ddd}
+#controls button.active{background:#000;color:#fff;border-color:#000}
+.color-option{display:inline-block;width:24px;height:24px;margin:3px;border-radius:50%;cursor:pointer;border:2px solid #e8e9ea;transition:all .2s ease;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.color-option:hover{transform:scale(1.1);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.color-option.selected{border:3px solid #000;transform:scale(1.15)}
+#instructions{
+  position:fixed;top:84px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);border:1px solid #e8e9ea;padding:12px 20px;border-radius:20px;text-align:center;font-size:13px;z-index:1000;font-weight:400;color:#666;backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+.separator{height:1px;background:#e8e9ea;margin:12px 0}
+.control-group{margin:8px 0}
+.control-label{display:block;font-size:11px;color:#666;margin-bottom:6px;font-weight:500}
+
+/* Playground */
+#playground-module{display:flex;justify-content:center;align-items:center;background:#fff}
+#app{text-align:center;user-select:none;position:relative;width:100%;max-width:800px;padding:20px}
+#text-container{
+  font-size:8vw;font-weight:300;color:#000;cursor:grab;transition:all .3s ease;display:inline-block;position:relative;white-space:normal;word-break:keep-all;max-width:90%;
+  text-align:center;width:auto;overflow-wrap:break-word;line-height:1.2;padding:0 20px
+}
+#text-container:hover{transform:scale(1.01)}
+#text-container:active{cursor:grabbing}
+#playground-controls{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);border:1px solid #e8e9ea;padding:12px 20px;border-radius:20px;display:flex;gap:12px;align-items:center;z-index:100;
+  backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,.08);flex-wrap:wrap;max-width:90%
+}
+#playground-controls select,#textInput{padding:8px 12px;border:1px solid #e8e9ea;border-radius:8px;font-size:13px;background:#fff;color:#666;transition:all .2s ease}
+#playground-controls select:hover,#textInput:hover{background:#f8f9fa;border-color:#ddd;color:#333}
+.particle{position:absolute;pointer-events:none;font-size:20px;opacity:0;z-index:-1;color:#000;animation:particleFloat 1.5s ease-out forwards}
+@keyframes particleFloat{0%{opacity:1;transform:scale(1) rotate(0deg)}100%{opacity:0;transform:scale(.3) rotate(180deg) translateY(-100px)}}
+#color-picker{width:36px;height:32px;border:1px solid #e8e9ea;border-radius:6px;background:#fff;transition:all .2s ease;cursor:pointer}
+#mode-indicator{
+  position:fixed;top:84px;left:50%;transform:translateX(-50%);color:#666;padding:8px 16px;font-size:13px;background:rgba(255,255,255,.95);border:1px solid #e8e9ea;border-radius:20px;backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+#help-text{
+  position:fixed;bottom:88px;left:50%;transform:translateX(-50%);color:#666;padding:8px 16px;border-radius:16px;font-size:12px;opacity:.7;background:rgba(255,255,255,.95);border:1px solid #e8e9ea;backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.06)
 }
 
-body {
-  font-family: "Pretendard", "Noto Sans KR", sans-serif;
-  background-color: #fff;
-  color: #000;
-  height: 100vh;
-  overflow: hidden;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
+/* Typography */
+#typography-module{display:flex;justify-content:center;align-items:center;background:#fff;cursor:none}
+#container{width:100%;height:100%;position:relative}
+#sentences{
+  position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;margin:0;gap:0;padding:10vh 5vw 5vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none
+}
+#sentences::-webkit-scrollbar{display:none}
+.sentence{width:100%;text-align:center;font-weight:300;font-size:3vh;line-height:1.8;opacity:.25;transition:all .3s ease;white-space:normal;padding:0 15%;word-break:keep-all;overflow-wrap:break-word;color:#000;will-change:opacity,transform}
+.word{display:inline-block;position:relative;margin:0 .5vw;transition:all .3s ease;color:#000;will-change:transform}
+.word.active{transform:scale(1.2);font-weight:500;opacity:1}
+.word:hover{transform:scale(1.05) translateY(-2px);opacity:.7}
+.focused{opacity:.8}
+#cursor{position:absolute;width:12px;height:12px;border-radius:50%;background:transparent;border:1px solid #666;pointer-events:none;transform:translate(-50%,-50%);z-index:1000;transition:all .2s ease}
+#cursor-dot{position:absolute;width:3px;height:3px;border-radius:50%;background:#666;pointer-events:none;transform:translate(-50%,-50%);z-index:1001}
+.letter{position:absolute;font-weight:300;pointer-events:none;transform-origin:center;opacity:0;color:#000;animation:letterFloat 1.5s ease-out forwards}
+@keyframes letterFloat{0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}20%{opacity:1;transform:translateY(-20px) rotate(10deg) scale(1.1)}100%{transform:translateY(-150px) rotate(45deg) scale(.5);opacity:0}}
+.key-display{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:15vh;font-weight:200;color:#000;opacity:0;pointer-events:none;transition:all .3s ease}
+.wave{position:absolute;border:1px solid #666;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;animation:waveExpand 1.5s ease-out forwards}
+@keyframes waveExpand{0%{width:0;height:0;opacity:.4;border-width:1px}50%{opacity:.2;border-width:1px}100%{width:500px;height:500px;opacity:0;border-width:.5px}}
+#typing-area{
+  position:fixed;width:80%;max-width:1000px;text-align:center;bottom:120px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:300;z-index:10;opacity:0;transition:all .3s ease;padding:16px;border-radius:20px;
+  white-space:normal;word-break:keep-all;overflow-wrap:break-word;line-height:1.5;min-height:56px;color:#000;background:rgba(255,255,255,.95);border:1px solid #e8e9ea;backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(0,0,0,.08)
+}
+.typing-instruction{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);opacity:.6;font-size:13px;width:100%;text-align:center;padding:10px 0;z-index:9;color:#666}
+#hidden-input{position:fixed;opacity:0;pointer-events:none}
+
+/* === NEW: 우산 인터랙션 모듈 === */
+#umbrella-module{
+  --bg:#0066cc; --fg:#ffffff;
+  background:var(--bg); color:var(--fg); transition:background 1s ease;
+}
+#umbrella-wrap{position:absolute; inset:0}
+#umbrella-canvas{position:fixed; inset:0; display:block}
+#umbrella-ui{
+  position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
+  text-align:center; font-size:14px; font-weight:600; color:var(--fg);
+  opacity:.95; user-select:none;
+}
+/* 우산 이미지 렌더(추가) */
+#umbrella-img{
+  position:fixed; left:0; top:0; width:min(22vw, 220px);
+  transform:translate(-50%, -75%);
+  pointer-events:none; user-select:none; z-index:1000;
 }
 
-html {
-  height: -webkit-fill-available;
-}
-
-#home-button {
-  position: fixed;
-  left: 20px;
-  top: 20px;
-  z-index: 2001;
-  width: 44px;
-  height: 44px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-#home-button:hover {
-  background: #f8f9fa;
-  border-color: #bbb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-
-#home-button svg {
-  width: 20px;
-  height: 20px;
-  fill: #666;
-  transition: all 0.2s ease;
-}
-
-#home-button:hover svg {
-  fill: #333;
-}
-
-.tab-container {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 1000;
-  padding: 8px;
-  background: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  border-radius: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.tab-button {
-  padding: 8px 16px;
-  border: 1px solid #e8e9ea;
-  background-color: #fff;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #666;
-  font-weight: 400;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-}
-
-.tab-button:hover {
-  background-color: #f8f9fa;
-  border-color: #ddd;
-  color: #333;
-}
-
-.tab-button.active {
-  background-color: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-.module {
-  width: 100%;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.module.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-/* Text Drawing Module */
-#text-drawing-module {
-  background-color: #fff;
-  cursor: crosshair;
-}
-
-#canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-#controls {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  padding: 16px;
-  border-radius: 12px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-}
-
-#controls button, #controls select {
-  margin: 3px;
-  padding: 8px 14px;
-  cursor: pointer;
-  border: 1px solid #e8e9ea;
-  border-radius: 20px;
-  background-color: #fff;
-  color: #666;
-  font-weight: 400;
-  font-size: 12px;
-  transition: all 0.2s ease;
-}
-
-#controls button:hover, #controls select:hover {
-  background-color: #f8f9fa;
-  color: #333;
-  border-color: #ddd;
-}
-
-#controls button.active {
-  background-color: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-.color-option {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin: 3px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #e8e9ea;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.color-option:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.color-option.selected {
-  border: 3px solid #000;
-  transform: scale(1.15);
-}
-
-#instructions {
-  position: fixed;
-  top: 84px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  padding: 12px 20px;
-  border-radius: 20px;
-  text-align: center;
-  font-size: 13px;
-  z-index: 1000;
-  font-weight: 400;
-  color: #666;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.separator {
-  height: 1px;
-  background-color: #e8e9ea;
-  margin: 12px 0;
-}
-
-.control-group {
-  margin: 8px 0;
-}
-
-.control-label {
-  display: block;
-  font-size: 11px;
-  color: #666;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-/* Playground Module */
-#playground-module {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fff;
-}
-
-#app {
-  text-align: center;
-  user-select: none;
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  padding: 20px;
-}
-
-#text-container {
-  font-size: 8vw;
-  font-weight: 300;
-  color: #000;
-  cursor: grab;
-  transition: all 0.3s ease;
-  display: inline-block;
-  position: relative;
-  white-space: normal;
-  word-break: keep-all;
-  max-width: 90%;
-  will-change: transform;
-  text-align: center;
-  width: auto;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  line-height: 1.2;
-  padding: 0 20px;
-}
-
-#text-container:hover {
-  transform: scale(1.01);
-}
-
-#text-container:active {
-  cursor: grabbing;
-}
-
-#playground-controls {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  padding: 12px 20px;
-  border-radius: 20px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  flex-wrap: wrap;
-  max-width: 90%;
-}
-
-#playground-controls select, #textInput {
-  padding: 8px 12px;
-  border: 1px solid #e8e9ea;
-  border-radius: 8px;
-  font-size: 13px;
-  background-color: #fff;
-  color: #666;
-  transition: all 0.2s ease;
-}
-
-#playground-controls select:hover, #textInput:hover {
-  background-color: #f8f9fa;
-  border-color: #ddd;
-  color: #333;
-}
-
-.particle {
-  position: absolute;
-  pointer-events: none;
-  font-size: 20px;
-  opacity: 0;
-  z-index: -1;
-  color: #000;
-  animation: particleFloat 1.5s ease-out forwards;
-}
-
-@keyframes particleFloat {
-  0% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.3) rotate(180deg) translateY(-100px);
-  }
-}
-
-#color-picker {
-  width: 36px;
-  height: 32px;
-  border: 1px solid #e8e9ea;
-  border-radius: 6px;
-  background: #fff;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-#mode-indicator {
-  position: fixed;
-  top: 84px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #666;
-  padding: 8px 16px;
-  font-size: 13px;
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-#help-text {
-  position: fixed;
-  bottom: 88px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #666;
-  padding: 8px 16px;
-  border-radius: 16px;
-  font-size: 12px;
-  opacity: 0.7;
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-/* Typography Module */
-#typography-module {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fff;
-  cursor: none;
-}
-
-#container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-#sentences {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 0;
-  gap: 0;
-  padding: 10vh 5vw 5vh 5vw;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-#sentences::-webkit-scrollbar {
-  display: none;
-}
-
-.sentence {
-  width: 100%;
-  text-align: center;
-  font-weight: 300;
-  font-size: 3vh;
-  line-height: 1.8;
-  opacity: 0.25;
-  transition: all 0.3s ease;
-  white-space: normal;
-  padding: 0 15%;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  color: #000;
-  will-change: opacity, transform;
-}
-
-.word {
-  display: inline-block;
-  position: relative;
-  margin: 0 0.5vw;
-  transition: all 0.3s ease;
-  color: #000;
-  will-change: transform;
-}
-
-.word.active {
-  transform: scale(1.2);
-  font-weight: 500;
-  opacity: 1;
-}
-
-.word:hover {
-  transform: scale(1.05) translateY(-2px);
-  opacity: 0.7;
-}
-
-.focused {
-  opacity: 0.8;
-  transform: translateX(0px);
-}
-
-#cursor {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: transparent;
-  border: 1px solid #666;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  transition: all 0.2s ease;
-}
-
-#cursor-dot {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background-color: #666;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 1001;
-}
-
-.letter {
-  position: absolute;
-  font-weight: 300;
-  pointer-events: none;
-  transform-origin: center;
-  opacity: 0;
-  color: #000;
-  animation: letterFloat 1.5s ease-out forwards;
-}
-
-@keyframes letterFloat {
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    opacity: 1;
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(-20px) rotate(10deg) scale(1.1);
-  }
-  100% {
-    transform: translateY(-150px) rotate(45deg) scale(0.5);
-    opacity: 0;
-  }
-}
-
-.key-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 15vh;
-  font-weight: 200;
-  color: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
-
-.wave {
-  position: absolute;
-  border: 1px solid #666;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  opacity: 0;
-  animation: waveExpand 1.5s ease-out forwards;
-}
-
-@keyframes waveExpand {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0.4;
-    border-width: 1px;
-  }
-  50% {
-    opacity: 0.2;
-    border-width: 1px;
-  }
-  100% {
-    width: 500px;
-    height: 500px;
-    opacity: 0;
-    border-width: 0.5px;
-  }
-}
-
-#typing-area {
-  position: fixed;
-  width: 80%;
-  max-width: 1000px;
-  text-align: center;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 24px;
-  font-weight: 300;
-  z-index: 10;
-  opacity: 0;
-  transition: all 0.3s ease;
-  padding: 16px;
-  border-radius: 20px;
-  white-space: normal;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  line-height: 1.5;
-  min-height: 56px;
-  color: #000;
-  background-color: rgba(255,255,255,0.95);
-  border: 1px solid #e8e9ea;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-}
-
-.typing-instruction {
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0.6;
-  font-size: 13px;
-  width: 100%;
-  text-align: center;
-  padding: 10px 0;
-  z-index: 9;
-  color: #666;
-}
-
-#hidden-input {
-  position: fixed;
-  opacity: 0;
-  pointer-events: none;
-}
-
-@media screen and (max-width: 768px) {
-  .tab-container {
-    top: 10px;
-    gap: 6px;
-    padding: 6px;
-  }
-  
-  .tab-button {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-  
-  #controls {
-    bottom: 10px;
-    left: 10px;
-    padding: 12px;
-    max-width: calc(100% - 40px);
-  }
-  
-  #playground-controls {
-    bottom: 10px;
-    flex-direction: column;
-    width: 90%;
-  }
-  
-  #playground-controls > * {
-    width: 100%;
-  }
-}
-
-/* === [ADD-ON] TEXT WAVE MODULE STYLES === */
-#text-wave-module {
-  background:#fff;
-}
-#text-wave-canvas{
-  position:absolute; inset:0; width:100%; height:100%;
-}
-#text-wave-instruction{
-  position:fixed; top:84px; left:50%; transform:translateX(-50%);
-  background:rgba(255,255,255,0.95); border:1px solid #e8e9ea;
-  padding:10px 16px; border-radius:20px; font-size:13px; color:#666;
-  backdrop-filter:blur(10px); box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:1000;
-}
-#text-wave-controls{
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-  display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;
-  background:rgba(255,255,255,0.95); border:1px solid #e8e9ea; padding:10px 14px;
-  border-radius:16px; backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.08); z-index:1000;
-  max-width:90%;
-}
-#text-wave-controls input[type="text"]{
-  min-width:200px; padding:8px 10px; border:1px solid #e8e9ea; border-radius:8px; font-size:13px; color:#666; background:#fff;
-}
-#text-wave-controls input[type="range"]{
-  width:140px;
-}
-#text-wave-controls select, #text-wave-controls input[type="color"]{
-  padding:6px 8px; border:1px solid #e8e9ea; border-radius:8px; background:#fff; color:#666; font-size:13px;
-}
-#text-wave-controls .kv{
-  display:flex; align-items:center; gap:6px; font-size:12px; color:#666;
+@media (max-width:768px){
+  .tab-container{top:10px;gap:6px;padding:6px}
+  .tab-button{padding:6px 12px;font-size:12px}
+  #controls{bottom:10px;left:10px;padding:12px;max-width:calc(100% - 40px)}
+  #playground-controls{bottom:10px;flex-direction:column;width:90%}
+  #playground-controls>*{width:100%}
 }
 </style>
 </head>
 <body>
 
 <div id="home-button" aria-label="홈">
-  <svg viewBox="0 0 24 24">
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-  </svg>
+  <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
 </div>
 
 <div class="tab-container">
   <button id="text-drawing-tab" class="tab-button active">텍스트 드로잉</button>
   <button id="typography-tab" class="tab-button">인터랙티브 타이포</button>
   <button id="playground-tab" class="tab-button">글자 놀이터</button>
+  <button id="umbrella-tab" class="tab-button">우산 인터랙션</button>
 </div>
 
-<!-- Text Drawing Module -->
+<!-- Text Drawing -->
 <div id="text-drawing-module" class="module active">
   <div id="instructions">마우스를 움직이면서 타이핑하세요</div>
   <div id="controls">
-    <div class="control-group">
-      <span class="control-label">모드</span>
+    <div class="control-group"><span class="control-label">모드</span>
       <button id="mode-maximal" class="active">맥시멀리즘</button>
       <button id="mode-minimal">미니멀리즘</button>
     </div>
-    
     <div class="separator"></div>
-    
-    <div class="control-group">
-      <span class="control-label">글꼴</span>
+    <div class="control-group"><span class="control-label">글꼴</span>
       <select id="font-select">
         <option value="Pretendard">Pretendard</option>
         <option value="Noto Sans KR">Noto Sans KR</option>
@@ -691,45 +166,36 @@ html {
         <option value="Nanum Myeongjo">나눔명조</option>
       </select>
     </div>
-    
     <div class="separator"></div>
-    
-    <div class="control-group">
-      <span class="control-label">제어</span>
+    <div class="control-group"><span class="control-label">제어</span>
       <button id="clear-btn">지우기</button>
       <button id="undo-btn">되돌리기</button>
       <button id="redo-btn">다시하기</button>
       <button id="save-btn">저장</button>
     </div>
-    
     <div class="separator"></div>
-    
-    <div class="control-group">
-      <span class="control-label">크기</span>
+    <div class="control-group"><span class="control-label">크기</span>
       <button id="font-size-up">A+</button>
       <button id="font-size-down">A-</button>
     </div>
-    
     <div class="separator"></div>
-    
-    <div class="control-group">
-      <span class="control-label">색상</span>
-      <div style="margin-top: 6px;">
-        <div class="color-option selected" style="background-color: #000" data-color="#000000"></div>
-        <div class="color-option" style="background-color: #666" data-color="#666666"></div>
-        <div class="color-option" style="background-color: #999" data-color="#999999"></div>
-        <div class="color-option" style="background-color: #e74c3c" data-color="#e74c3c"></div>
-        <div class="color-option" style="background-color: #3498db" data-color="#3498db"></div>
-        <div class="color-option" style="background-color: #2ecc71" data-color="#2ecc71"></div>
-        <div class="color-option" style="background-color: #f39c12" data-color="#f39c12"></div>
-        <div class="color-option" style="background-color: #9b59b6" data-color="#9b59b6"></div>
+    <div class="control-group"><span class="control-label">색상</span>
+      <div style="margin-top:6px;">
+        <div class="color-option selected" style="background-color:#000" data-color="#000000"></div>
+        <div class="color-option" style="background-color:#666" data-color="#666666"></div>
+        <div class="color-option" style="background-color:#999" data-color="#999999"></div>
+        <div class="color-option" style="background-color:#e74c3c" data-color="#e74c3c"></div>
+        <div class="color-option" style="background-color:#3498db" data-color="#3498db"></div>
+        <div class="color-option" style="background-color:#2ecc71" data-color="#2ecc71"></div>
+        <div class="color-option" style="background-color:#f39c12" data-color="#f39c12"></div>
+        <div class="color-option" style="background-color:#9b59b6" data-color="#9b59b6"></div>
       </div>
     </div>
   </div>
   <canvas id="canvas"></canvas>
 </div>
 
-<!-- Typography Module -->
+<!-- Typography -->
 <div id="typography-module" class="module">
   <div id="container">
     <div id="sentences"></div>
@@ -742,7 +208,7 @@ html {
   </div>
 </div>
 
-<!-- Playground Module -->
+<!-- Playground -->
 <div id="playground-module" class="module">
   <div id="mode-indicator">드래그 모드</div>
   <div id="help-text">스페이스바: 모드 변경 | 방향키: 강도 조절</div>
@@ -769,459 +235,159 @@ html {
   </div>
 </div>
 
+<!-- NEW: 우산 인터랙션 -->
+<div id="umbrella-module" class="module" aria-label="우산 인터랙션">
+  <div id="umbrella-wrap">
+    <canvas id="umbrella-canvas"></canvas>
+    <!-- 시각 우산 이미지(추가) -->
+    <img id="umbrella-img" src="image/h.png" alt="umbrella">
+
+    <div id="umbrella-ui">☂️ 비가 내리고, 우산에 닿으면 소리와 함께 튑니다. (모듈 영역 클릭 시 색상 전환)</div>
+
+    <!-- 효과음: audio/ 폴더에 파일 배치 필요 -->
+    <audio id="umb-bgRain" src="audio/rain_loop.mp3" loop></audio>
+    <audio id="umb-drop1" src="audio/drop1.mp3"></audio>
+    <audio id="umb-drop2" src="audio/drop2.mp3"></audio>
+    <audio id="umb-bounce1" src="audio/bounce1.mp3"></audio>
+    <audio id="umb-bounce2" src="audio/bounce2.mp3"></audio>
+  </div>
+</div>
+
 <script>
-// 전역 변수
+/* ---------------- 공용 탭/모듈 전환 ---------------- */
 const modules = {
   textDrawing: document.getElementById('text-drawing-module'),
-  typography: document.getElementById('typography-module'),
-  playground: document.getElementById('playground-module')
+  typography:  document.getElementById('typography-module'),
+  playground:  document.getElementById('playground-module'),
+  umbrella:    document.getElementById('umbrella-module')
 };
-
 const tabs = {
   textDrawing: document.getElementById('text-drawing-tab'),
-  typography: document.getElementById('typography-tab'),
-  playground: document.getElementById('playground-tab')
+  typography:  document.getElementById('typography-tab'),
+  playground:  document.getElementById('playground-tab'),
+  umbrella:    document.getElementById('umbrella-tab')
 };
-
 let activeModule = 'textDrawing';
-
-// 모듈 전환 함수
-function switchModule(moduleName) {
-  Object.keys(modules).forEach(key => {
-    modules[key].classList.remove('active');
-    tabs[key].classList.remove('active');
+function switchModule(moduleName){
+  Object.keys(modules).forEach(k=>{
+    modules[k].classList.remove('active');
+    tabs[k].classList.remove('active');
   });
-  
   modules[moduleName].classList.add('active');
   tabs[moduleName].classList.add('active');
   activeModule = moduleName;
-  
-  if (moduleName === 'textDrawing' && drawingInput) {
-    setTimeout(() => drawingInput.focus(), 100);
-  } else if (moduleName === 'typography' && typoHiddenInput) {
-    setTimeout(() => typoHiddenInput.focus(), 100);
-  }
+  if(moduleName==='textDrawing' && drawingInput){ setTimeout(()=>drawingInput.focus(),100); }
+  else if(moduleName==='typography' && typoHiddenInput){ setTimeout(()=>typoHiddenInput.focus(),100); }
 }
+tabs.textDrawing.addEventListener('click',()=>switchModule('textDrawing'));
+tabs.typography .addEventListener('click',()=>switchModule('typography'));
+tabs.playground .addEventListener('click',()=>switchModule('playground'));
+tabs.umbrella  .addEventListener('click',()=>switchModule('umbrella'));
 
-// 탭 이벤트 리스너
-tabs.textDrawing.addEventListener('click', () => switchModule('textDrawing'));
-tabs.typography.addEventListener('click', () => switchModule('typography'));
-tabs.playground.addEventListener('click', () => switchModule('playground'));
+/* ---------------- Text Drawing (원본) ---------------- */
+let drawingInput=null;
+(function(){
+  const canvas=document.getElementById('canvas');
+  const ctx=canvas.getContext('2d');
+  let mouseX=0,mouseY=0,smoothMouseX=0,smoothMouseY=0,fontSize=24,textColor='#000',currentFont='Pretendard',currentMode='maximal';
+  let mouseTrail=[],drawnChars=[],isComposing=false,composingText='';
+  let history=[],historyIndex=-1;const MAX_HISTORY=50;
 
-// ============================================
-// TEXT DRAWING MODULE
-// ============================================
-let drawingInput = null;
+  function saveState(){if(historyIndex<history.length-1){history=history.slice(0,historyIndex+1)}const state={chars:JSON.parse(JSON.stringify(drawnChars)),trail:JSON.parse(JSON.stringify(mouseTrail))};history.push(state);if(history.length>MAX_HISTORY){history.shift()}else{historyIndex++}}
+  function undo(){if(historyIndex>0){historyIndex--;const s=history[historyIndex];drawnChars=JSON.parse(JSON.stringify(s.chars));mouseTrail=JSON.parse(JSON.stringify(s.trail));redrawCanvas()}}
+  function redo(){if(historyIndex<history.length-1){historyIndex++;const s=history[historyIndex];drawnChars=JSON.parse(JSON.stringify(s.chars));mouseTrail=JSON.parse(JSON.stringify(s.trail));redrawCanvas()}}
 
-(function() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  let mouseX = 0;
-  let mouseY = 0;
-  let smoothMouseX = 0;
-  let smoothMouseY = 0;
-  let fontSize = 24;
-  let textColor = '#000000';
-  let currentFont = 'Pretendard';
-  let currentMode = 'maximal';
-  let mouseTrail = [];
-  let drawnChars = [];
-  let isComposing = false;
-  let composingText = '';
-  
-  // 되돌리기/다시하기 기능
-  let history = [];
-  let historyIndex = -1;
-  const MAX_HISTORY = 50;
-  
-  function saveState() {
-    if (historyIndex < history.length - 1) {
-      history = history.slice(0, historyIndex + 1);
-    }
-    const state = {
-      chars: JSON.parse(JSON.stringify(drawnChars)),
-      trail: JSON.parse(JSON.stringify(mouseTrail))
-    };
-    history.push(state);
-    if (history.length > MAX_HISTORY) {
-      history.shift();
-    } else {
-      historyIndex++;
+  function resizeCanvas(){
+    const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;const tctx=tmp.getContext('2d'); if(canvas.width>0&&canvas.height>0){try{tctx.drawImage(canvas,0,0)}catch(e){}}
+    canvas.width=innerWidth;canvas.height=innerHeight; if(tmp.width>0&&tmp.height>0){try{ctx.drawImage(tmp,0,0)}catch(e){}}
+    mouseX=canvas.width/2;mouseY=canvas.height/2;smoothMouseX=mouseX;smoothMouseY=mouseY;
+  }
+  resizeCanvas(); addEventListener('resize',resizeCanvas);
+  canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();mouseX=e.clientX-r.left;mouseY=e.clientY-r.top});
+  function updateSmoothMouse(){
+    const k=0.25;smoothMouseX+=(mouseX-smoothMouseX)*k;smoothMouseY+=(mouseY-smoothMouseY)*k;
+    const minD=3;
+    if(mouseTrail.length===0||Math.hypot(smoothMouseX-mouseTrail.at(-1).x,smoothMouseY-mouseTrail.at(-1).y)>minD){
+      mouseTrail.push({x:smoothMouseX,y:smoothMouseY,time:Date.now()}); if(mouseTrail.length>800){mouseTrail.shift()}
     }
   }
-  
-  function undo() {
-    if (historyIndex > 0) {
-      historyIndex--;
-      const state = history[historyIndex];
-      drawnChars = JSON.parse(JSON.stringify(state.chars));
-      mouseTrail = JSON.parse(JSON.stringify(state.trail));
-      redrawCanvas();
-    }
-  }
-  
-  function redo() {
-    if (historyIndex < history.length - 1) {
-      historyIndex++;
-      const state = history[historyIndex];
-      drawnChars = JSON.parse(JSON.stringify(state.chars));
-      mouseTrail = JSON.parse(JSON.stringify(state.trail));
-      redrawCanvas();
-    }
-  }
-  
-  function resizeCanvas() {
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    if (canvas.width > 0 && canvas.height > 0) {
-      try {
-        tempCtx.drawImage(canvas, 0, 0);
-      } catch (e) {}
-    }
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    if (tempCanvas.width > 0 && tempCanvas.height > 0) {
-      try {
-        ctx.drawImage(tempCanvas, 0, 0);
-      } catch (e) {}
-    }
-    
-    mouseX = canvas.width / 2;
-    mouseY = canvas.height / 2;
-    smoothMouseX = mouseX;
-    smoothMouseY = mouseY;
-  }
-  
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  
-  canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
+
+  drawingInput=document.createElement('input'); drawingInput.type='text'; drawingInput.style.cssText='position:fixed;opacity:0;pointer-events:none;left:-1000px'; document.body.appendChild(drawingInput);
+  drawingInput.addEventListener('compositionstart',e=>{if(activeModule!=='textDrawing')return; isComposing=true;composingText=e.data||''});
+  drawingInput.addEventListener('compositionupdate',e=>{if(activeModule!=='textDrawing')return; composingText=e.data||''});
+  drawingInput.addEventListener('compositionend',e=>{if(activeModule!=='textDrawing')return; isComposing=false; const ch=e.data; if(ch){addCharacter(ch);saveState()}composingText='';drawingInput.value=''});
+  drawingInput.addEventListener('input',e=>{if(activeModule!=='textDrawing')return; if(!isComposing&&e.data){addCharacter(e.data);saveState();drawingInput.value=''}});
+  drawingInput.addEventListener('keydown',e=>{
+    if(activeModule!=='textDrawing')return; if(isComposing)return;
+    if(e.key==='Backspace'){ if(drawnChars.length>0){drawnChars.pop();saveState()} return; }
+    if(e.key==='Enter'){ drawnChars=[];mouseTrail=[];saveState();return; }
+    if(e.key.length===1&&!e.ctrlKey&&!e.altKey&&!e.metaKey){ addCharacter(e.key);saveState(); }
   });
-  
-  function updateSmoothMouse() {
-    // Smoother mouse tracking with higher interpolation
-    const smoothFactor = 0.25; // Increased from 0.2 for more responsiveness
-    smoothMouseX += (mouseX - smoothMouseX) * smoothFactor;
-    smoothMouseY += (mouseY - smoothMouseY) * smoothFactor;
-    
-    // Add point to trail with adaptive distance
-    const minDistance = 3; // Reduced from 5 for smoother curves
-    
-    if (mouseTrail.length === 0 || 
-        Math.hypot(smoothMouseX - mouseTrail[mouseTrail.length - 1].x,
-                   smoothMouseY - mouseTrail[mouseTrail.length - 1].y) > minDistance) {
-      mouseTrail.push({ x: smoothMouseX, y: smoothMouseY, time: Date.now() });
-      
-      // Keep trail at optimal length for smooth curves
-      if (mouseTrail.length > 800) {
-        mouseTrail.shift();
+  function addCharacter(char){
+    const pos={x:smoothMouseX,y:smoothMouseY}; let angle=0;
+    if(mouseTrail.length>1){const a=mouseTrail.at(-1),b=mouseTrail.at(-2); angle=Math.atan2(a.y-b.y,a.x-b.x)}
+    drawnChars.push({char,x:pos.x,y:pos.y,angle,scale:1,opacity:.9,birthTime:Date.now(),targetAngle:angle});
+  }
+  function redrawCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height); drawnChars.forEach(o=>{if(o.opacity<=0)return; ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.angle);ctx.scale(o.scale,o.scale);ctx.font=`${fontSize}px '${currentFont}', sans-serif`;ctx.fillStyle=textColor;ctx.globalAlpha=o.opacity;ctx.fillText(o.char,0,0);ctx.restore();})}
+  function animate(){
+    updateSmoothMouse(); const time=Date.now()*0.001;
+    for(let i=0;i<drawnChars.length;i++){
+      const ch=drawnChars[i]; const circleRadius=15+(i%10)*3; const circleSpeed=0.8+(i%7)*0.2; const phase=i*0.8;
+      const orbitalX=Math.cos(time*circleSpeed+phase)*circleRadius; const orbitalY=Math.sin(time*circleSpeed+phase)*circleRadius;
+      const prog=i/Math.max(drawnChars.length-1,1); const ti=Math.floor(prog*Math.max(mouseTrail.length-1,0));
+      if(ti>=0 && ti<mouseTrail.length){
+        const target=mouseTrail[ti]; const floatX=Math.sin(time*1.5+i*1.2)*12; const floatY=Math.cos(time*1.8+i*0.9)*12;
+        const waveX=Math.sin(time*2+i*0.5)*8; const waveY=Math.cos(time*2.5+i*0.7)*8;
+        const tx=target.x+orbitalX+floatX+waveX; const ty=target.y+orbitalY+floatY+waveY;
+        const k=0.08+Math.sin(time+i)*0.02; ch.x+= (tx-ch.x)*k; ch.y+= (ty-ch.y)*k;
+        const rotSpeed=0.5+(i%5)*0.3; const baseR=time*rotSpeed+i*2;
+        if(ti>0 && ti<mouseTrail.length-1){const p=mouseTrail[ti-1],n=mouseTrail[Math.min(ti+1,mouseTrail.length-1)]; const pathAngle=Math.atan2(n.y-p.y,n.x-p.x);
+          const targ=pathAngle+Math.sin(baseR)*0.5; let d=targ-ch.angle; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; ch.angle+=d*0.1;
+        }else{ ch.angle+=0.02*rotSpeed; }
+        const sf=1.5+(i%6)*0.5; ch.scale = 1 + Math.sin(time*sf+i*1.5)*0.08;
+        const opw=Math.sin(time*2+i*0.6)*0.1; const base=0.85+opw; const maxAge=30000; const ageMs=Date.now()-ch.birthTime;
+        ch.opacity = ageMs>maxAge ? Math.max(0, base - (ageMs-maxAge)/10000) : base;
       }
     }
-  }
-  
-  drawingInput = document.createElement('input');
-  drawingInput.type = 'text';
-  drawingInput.style.cssText = 'position:fixed;opacity:0;pointer-events:none;left:-1000px';
-  document.body.appendChild(drawingInput);
-  
-  drawingInput.addEventListener('compositionstart', (e) => {
-    if (activeModule !== 'textDrawing') return;
-    isComposing = true;
-    composingText = e.data || '';
-  });
-  
-  drawingInput.addEventListener('compositionupdate', (e) => {
-    if (activeModule !== 'textDrawing') return;
-    composingText = e.data || '';
-  });
-  
-  drawingInput.addEventListener('compositionend', (e) => {
-    if (activeModule !== 'textDrawing') return;
-    isComposing = false;
-    const newChar = e.data;
-    if (newChar) {
-      addCharacter(newChar);
-      saveState();
-    }
-    composingText = '';
-    drawingInput.value = '';
-  });
-  
-  drawingInput.addEventListener('input', (e) => {
-    if (activeModule !== 'textDrawing') return;
-    if (!isComposing && e.data) {
-      addCharacter(e.data);
-      saveState();
-      drawingInput.value = '';
-    }
-  });
-  
-  drawingInput.addEventListener('keydown', (e) => {
-    if (activeModule !== 'textDrawing') return;
-    if (isComposing) return;
-    
-    if (e.key === 'Backspace') {
-      if (drawnChars.length > 0) {
-        drawnChars.pop();
-        saveState();
-      }
-      return;
-    }
-    
-    if (e.key === 'Enter') {
-      drawnChars = [];
-      mouseTrail = [];
-      saveState();
-      return;
-    }
-    
-    if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-      addCharacter(e.key);
-      saveState();
-    }
-  });
-  
-  function addCharacter(char) {
-    const position = { x: smoothMouseX, y: smoothMouseY };
-    let angle = 0;
-    
-    if (mouseTrail.length > 1) {
-      const lastPoint = mouseTrail[mouseTrail.length - 1];
-      const prevPoint = mouseTrail[mouseTrail.length - 2];
-      angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
-    }
-    
-    drawnChars.push({
-      char: char,
-      x: position.x,
-      y: position.y,
-      angle: angle,
-      scale: 1,
-      opacity: 0.9,
-      birthTime: Date.now(),
-      targetAngle: angle
-    });
-  }
-  
-  function redrawCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawnChars.forEach(charObj => {
-      if (charObj.opacity <= 0) return;
-      ctx.save();
-      ctx.translate(charObj.x, charObj.y);
-      ctx.rotate(charObj.angle);
-      ctx.scale(charObj.scale, charObj.scale);
-      ctx.font = `${fontSize}px '${currentFont}', sans-serif`;
-      ctx.fillStyle = textColor;
-      ctx.globalAlpha = charObj.opacity;
-      ctx.fillText(charObj.char, 0, 0);
-      ctx.restore();
-    });
-  }
-  
-  function animate() {
-    updateSmoothMouse();
-    
-    // Each character moves independently with its own physics
-    const time = Date.now() * 0.001;
-    
-    for (let i = 0; i < drawnChars.length; i++) {
-      const char = drawnChars[i];
-      const age = (time * 1000 - char.birthTime) * 0.001;
-      
-      // Each character has independent circular motion
-      const circleRadius = 15 + (i % 10) * 3;
-      const circleSpeed = 0.8 + (i % 7) * 0.2;
-      const phaseOffset = i * 0.8;
-      
-      // Independent orbital motion around its target point
-      const orbitalX = Math.cos(time * circleSpeed + phaseOffset) * circleRadius;
-      const orbitalY = Math.sin(time * circleSpeed + phaseOffset) * circleRadius;
-      
-      // Find target position on trail
-      const progress = i / Math.max(drawnChars.length - 1, 1);
-      const trailIndex = Math.floor(progress * Math.max(mouseTrail.length - 1, 0));
-      
-      if (trailIndex >= 0 && trailIndex < mouseTrail.length) {
-        const targetPos = mouseTrail[trailIndex];
-        
-        // Independent floating motion
-        const floatX = Math.sin(time * 1.5 + i * 1.2) * 12;
-        const floatY = Math.cos(time * 1.8 + i * 0.9) * 12;
-        
-        // Additional wave motion
-        const waveX = Math.sin(time * 2 + i * 0.5) * 8;
-        const waveY = Math.cos(time * 2.5 + i * 0.7) * 8;
-        
-        // Combine all motions
-        const finalTargetX = targetPos.x + orbitalX + floatX + waveX;
-        const finalTargetY = targetPos.y + orbitalY + floatY + waveY;
-        
-        // Smooth interpolation with spring-like physics
-        const springStrength = 0.08 + Math.sin(time + i) * 0.02;
-        const dx = finalTargetX - char.x;
-        const dy = finalTargetY - char.y;
-        
-        char.x += dx * springStrength;
-        char.y += dy * springStrength;
-        
-        // Independent rotation for each character
-        const rotationSpeed = 0.5 + (i % 5) * 0.3;
-        const baseRotation = time * rotationSpeed + i * 2;
-        
-        // Add direction-based rotation
-        if (trailIndex > 0 && trailIndex < mouseTrail.length - 1) {
-          const prevPos = mouseTrail[trailIndex - 1];
-          const nextPos = mouseTrail[Math.min(trailIndex + 1, mouseTrail.length - 1)];
-          const pathAngle = Math.atan2(nextPos.y - prevPos.y, nextPos.x - prevPos.x);
-          
-          // Mix path following with independent rotation
-          const targetAngle = pathAngle + Math.sin(baseRotation) * 0.5;
-          
-          let angleDiff = targetAngle - char.angle;
-          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-          
-          char.angle += angleDiff * 0.1;
-        } else {
-          // Free rotation when not following path
-          char.angle += 0.02 * rotationSpeed;
-        }
-        
-        // Independent scale pulsing
-        const scaleFreq = 1.5 + (i % 6) * 0.5;
-        const scalePulse = 1 + Math.sin(time * scaleFreq + i * 1.5) * 0.08;
-        char.scale = scalePulse;
-        
-        // Independent opacity variation
-        const opacityWave = Math.sin(time * 2 + i * 0.6) * 0.1;
-        const baseOpacity = 0.85 + opacityWave;
-        
-        // Fade out old characters
-        const maxAge = 30000;
-        const ageInMs = Date.now() - char.birthTime;
-        if (ageInMs > maxAge) {
-          char.opacity = Math.max(0, baseOpacity - (ageInMs - maxAge) / 10000);
-        } else {
-          char.opacity = baseOpacity;
-        }
-      }
-    }
-    
     redrawCanvas();
-    
-    // Draw composing preview with free floating motion
-    if (currentMode === 'maximal' && composingText) {
-      const floatX = Math.sin(time * 3) * 5;
-      const floatY = Math.cos(time * 2.5) * 5;
-      const rotate = Math.sin(time * 1.5) * 0.1;
-      
-      ctx.save();
-      ctx.translate(smoothMouseX + floatX, smoothMouseY + floatY);
-      ctx.rotate(rotate);
-      ctx.font = `${fontSize}px '${currentFont}', sans-serif`;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      const pulse = Math.sin(time * 3) * 0.15 + 0.85;
-      ctx.globalAlpha = pulse;
-      ctx.fillText(composingText, 0, 0);
-      ctx.restore();
+    if(currentMode==='maximal' && composingText){
+      const fx=Math.sin(time*3)*5, fy=Math.cos(time*2.5)*5, rot=Math.sin(time*1.5)*0.1;
+      ctx.save(); ctx.translate(smoothMouseX+fx,smoothMouseY+fy); ctx.rotate(rot);
+      ctx.font=`${fontSize}px '${currentFont}', sans-serif`; ctx.fillStyle='rgba(0,0,0,.5)'; ctx.globalAlpha = Math.sin(time*3)*0.15 + 0.85; ctx.fillText(composingText,0,0); ctx.restore();
     }
-    
-    drawnChars = drawnChars.filter(char => char.opacity > 0);
+    drawnChars = drawnChars.filter(ch=>ch.opacity>0);
     requestAnimationFrame(animate);
   }
-  
   animate();
-  
-  // Controls
-  document.getElementById('mode-maximal').addEventListener('click', () => {
-    currentMode = 'maximal';
-    document.getElementById('mode-maximal').classList.add('active');
-    document.getElementById('mode-minimal').classList.remove('active');
-    drawingInput.focus();
+
+  document.getElementById('mode-maximal').addEventListener('click',()=>{currentMode='maximal';document.getElementById('mode-maximal').classList.add('active');document.getElementById('mode-minimal').classList.remove('active');drawingInput.focus()});
+  document.getElementById('mode-minimal').addEventListener('click',()=>{currentMode='minimal';document.getElementById('mode-minimal').classList.add('active');document.getElementById('mode-maximal').classList.remove('active')});
+  document.getElementById('font-select').addEventListener('change',e=>currentFont=e.target.value);
+  document.getElementById('font-size-up').addEventListener('click',()=>{fontSize=Math.min(fontSize+4,72)});
+  document.getElementById('font-size-down').addEventListener('click',()=>{fontSize=Math.max(fontSize-4,12)});
+  document.querySelectorAll('#controls .color-option').forEach(opt=>{
+    opt.addEventListener('click',function(){document.querySelector('#controls .color-option.selected').classList.remove('selected');this.classList.add('selected');textColor=this.getAttribute('data-color')})
   });
-  
-  document.getElementById('mode-minimal').addEventListener('click', () => {
-    currentMode = 'minimal';
-    document.getElementById('mode-minimal').classList.add('active');
-    document.getElementById('mode-maximal').classList.remove('active');
-  });
-  
-  document.getElementById('font-select').addEventListener('change', (e) => {
-    currentFont = e.target.value;
-  });
-  
-  document.getElementById('font-size-up').addEventListener('click', () => {
-    fontSize = Math.min(fontSize + 4, 72);
-  });
-  
-  document.getElementById('font-size-down').addEventListener('click', () => {
-    fontSize = Math.max(fontSize - 4, 12);
-  });
-  
-  document.querySelectorAll('#controls .color-option').forEach(option => {
-    option.addEventListener('click', function() {
-      document.querySelector('#controls .color-option.selected').classList.remove('selected');
-      this.classList.add('selected');
-      textColor = this.getAttribute('data-color');
-    });
-  });
-  
-  document.getElementById('clear-btn').addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = 'typography-art.png';
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-  
-  document.getElementById('undo-btn').addEventListener('click', undo);
-  document.getElementById('redo-btn').addEventListener('click', redo);
-  
-  document.getElementById('save-btn').addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = 'typography-art.png';
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-  
-  canvas.addEventListener('click', () => {
-    if (activeModule === 'textDrawing') {
-      drawingInput.focus();
-    }
-  });
-  
+  document.getElementById('clear-btn').addEventListener('click',()=>{const link=document.createElement('a');link.download='typography-art.png';link.href=canvas.toDataURL();link.click()});
+  document.getElementById('undo-btn').addEventListener('click',undo);
+  document.getElementById('redo-btn').addEventListener('click',redo);
+  document.getElementById('save-btn').addEventListener('click',()=>{const link=document.createElement('a');link.download='typography-art.png';link.href=canvas.toDataURL();link.click()});
+  canvas.addEventListener('click',()=>{if(activeModule==='textDrawing'){drawingInput.focus()}});
   saveState();
 })();
 
-// ============================================
-// TYPOGRAPHY MODULE
-// ============================================
-let typoHiddenInput = null;
+/* ---------------- Typography (원본) ---------------- */
+let typoHiddenInput=null;
+(function(){
+  const container=document.getElementById('container');
+  const sentencesContainer=document.getElementById('sentences');
+  const cursor=document.getElementById('cursor');
+  const cursorDot=document.getElementById('cursor-dot');
+  const typingArea=document.getElementById('typing-area');
+  typoHiddenInput=document.getElementById('hidden-input');
+  let mouseX=0,mouseY=0,typedText='',activeSentenceIndex=null;
 
-(function() {
-  const container = document.getElementById('container');
-  const sentencesContainer = document.getElementById('sentences');
-  const cursor = document.getElementById('cursor');
-  const cursorDot = document.getElementById('cursor-dot');
-  const keyDisplay = document.querySelector('.key-display');
-  const typingArea = document.getElementById('typing-area');
-  typoHiddenInput = document.getElementById('hidden-input');
-  
-  let mouseX = 0;
-  let mouseY = 0;
-  let typedText = '';
-  let activeSentenceIndex = null;
-  
-  const initialSentences = [
+  const initialSentences=[
     "단어들이 춤추는 디지털 공간에, 오신 것을 환영합니다",
     "마우스를 클릭해 단어들과 상호작용해 보세요",
     "클릭 한 번에 단어가 파동처럼 퍼져나갑니다",
@@ -1233,641 +399,255 @@ let typoHiddenInput = null;
     "간결함 속에 담긴 깊은 의미를 찾아보세요",
     "글자가 문장을 엮고, 문장이 이야기를 만듭니다"
   ];
-  
-  function createSentence(text) {
-    const sentenceElement = document.createElement('div');
-    sentenceElement.className = 'sentence';
-    const words = text.split(' ');
-    
-    words.forEach((word, index) => {
-      const wordElement = document.createElement('span');
-      wordElement.className = 'word';
-      wordElement.textContent = word;
-      
-      wordElement.addEventListener('mouseover', () => {
-        if (activeModule !== 'typography') return;
-        wordElement.classList.add('active');
-        const siblings = Array.from(wordElement.parentNode.children);
-        const idx = siblings.indexOf(wordElement);
-        siblings.forEach((sibling, i) => {
-          if (Math.abs(i - idx) <= 2 && sibling !== wordElement) {
-            sibling.style.transform = 'scale(1.05) translateY(-2px)';
-            sibling.style.opacity = '0.7';
-          }
-        });
-      });
-      
-      wordElement.addEventListener('mouseout', () => {
-        if (activeModule !== 'typography') return;
-        wordElement.classList.remove('active');
-        const siblings = Array.from(wordElement.parentNode.children);
-        siblings.forEach(sibling => {
-          sibling.style.transform = '';
-          sibling.style.opacity = '';
-        });
-      });
-      
-      wordElement.addEventListener('click', (e) => {
-        if (activeModule !== 'typography') return;
-        e.stopPropagation();
-        explodeWord(wordElement);
-      });
-      
-      sentenceElement.appendChild(wordElement);
-      if (index < words.length - 1) {
-        sentenceElement.appendChild(document.createTextNode(' '));
-      }
+  function createSentence(text){
+    const el=document.createElement('div'); el.className='sentence';
+    const words=text.split(' ');
+    words.forEach((w,i)=>{
+      const we=document.createElement('span'); we.className='word'; we.textContent=w;
+      we.addEventListener('mouseover',()=>{ if(activeModule!=='typography')return; we.classList.add('active'); const sib=[...we.parentNode.children]; const idx=sib.indexOf(we); sib.forEach((s,j)=>{if(Math.abs(j-idx)<=2&&s!==we){s.style.transform='scale(1.05) translateY(-2px)';s.style.opacity='0.7';}}); });
+      we.addEventListener('mouseout',()=>{ if(activeModule!=='typography')return; we.classList.remove('active'); [...we.parentNode.children].forEach(s=>{s.style.transform='';s.style.opacity='';}); });
+      we.addEventListener('click',e=>{ if(activeModule!=='typography')return; e.stopPropagation(); explodeWord(we); });
+      el.appendChild(we); if(i<words.length-1) el.appendChild(document.createTextNode(' '));
     });
-    
-    if (sentencesContainer.firstChild) {
-      sentencesContainer.insertBefore(sentenceElement, sentencesContainer.firstChild);
-    } else {
-      sentencesContainer.appendChild(sentenceElement);
-    }
-    
-    sentenceElement.style.opacity = '0';
-    sentenceElement.style.transform = 'translateY(-20px)';
-    setTimeout(() => {
-      sentenceElement.style.transition = 'all 0.5s ease';
-      sentenceElement.style.opacity = '0.25';
-      sentenceElement.style.transform = 'translateY(0)';
-    }, 100);
-    
-    setTimeout(() => sentencesContainer.scrollTop = 0, 100);
+    if(sentencesContainer.firstChild) sentencesContainer.insertBefore(el,sentencesContainer.firstChild);
+    else sentencesContainer.appendChild(el);
+    el.style.opacity='0'; el.style.transform='translateY(-20px)';
+    setTimeout(()=>{ el.style.transition='all .5s ease'; el.style.opacity='.25'; el.style.transform='translateY(0)'; },100);
+    setTimeout(()=>sentencesContainer.scrollTop=0,100);
   }
-  
-  function explodeWord(wordElement) {
-    if (activeModule !== 'typography') return;
-    const rect = wordElement.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const text = wordElement.textContent;
-    
-    for (let i = 0; i < text.length; i++) {
-      setTimeout(() => {
-        createFloatingLetter(text[i], centerX, centerY);
-      }, i * 80);
-    }
-    
-    wordElement.style.transform = 'scale(1.3) rotate(2deg)';
-    wordElement.style.opacity = '1';
-    wordElement.style.fontWeight = '500';
-    setTimeout(() => {
-      wordElement.style.transform = '';
-      wordElement.style.opacity = '';
-      wordElement.style.fontWeight = '';
-    }, 800);
+  function explodeWord(wordEl){
+    if(activeModule!=='typography')return;
+    const r=wordEl.getBoundingClientRect(); const cx=r.left+r.width/2; const cy=r.top+r.height/2; const text=wordEl.textContent;
+    for(let i=0;i<text.length;i++){ setTimeout(()=>{ createFloatingLetter(text[i],cx,cy); }, i*80); }
+    wordEl.style.transform='scale(1.3) rotate(2deg)'; wordEl.style.opacity='1'; wordEl.style.fontWeight='500';
+    setTimeout(()=>{ wordEl.style.transform=''; wordEl.style.opacity=''; wordEl.style.fontWeight=''; },800);
   }
-  
-  function createFloatingLetter(letter, x, y) {
-    if (activeModule !== 'typography') return;
-    const element = document.createElement('div');
-    element.className = 'letter';
-    element.textContent = letter;
-    const offsetX = (Math.random() - 0.5) * 80;
-    const offsetY = (Math.random() - 0.5) * 80;
-    element.style.left = `${x + offsetX}px`;
-    element.style.top = `${y + offsetY}px`;
-    element.style.fontSize = `${20 + Math.random() * 25}px`;
-    element.style.fontWeight = Math.random() > 0.5 ? '300' : '500';
-    container.appendChild(element);
-    setTimeout(() => {
-      if (element.parentNode === container) {
-        container.removeChild(element);
-      }
-    }, 1500);
+  function createFloatingLetter(letter,x,y){
+    if(activeModule!=='typography')return;
+    const e=document.createElement('div'); e.className='letter'; e.textContent=letter;
+    const ox=(Math.random()-0.5)*80, oy=(Math.random()-0.5)*80;
+    e.style.left=`${x+ox}px`; e.style.top=`${y+oy}px`; e.style.fontSize=`${20+Math.random()*25}px`; e.style.fontWeight=Math.random()>0.5?'300':'500';
+    container.appendChild(e); setTimeout(()=>{ if(e.parentNode===container) container.removeChild(e); },1500);
   }
-  
-  function createWave(x, y) {
-    if (activeModule !== 'typography') return;
-    const wave = document.createElement('div');
-    wave.className = 'wave';
-    wave.style.left = `${x}px`;
-    wave.style.top = `${y}px`;
-    container.appendChild(wave);
-    setTimeout(() => {
-      if (wave.parentNode === container) {
-        container.removeChild(wave);
-      }
-    }, 1500);
+  function createWave(x,y){
+    if(activeModule!=='typography')return;
+    const w=document.createElement('div'); w.className='wave'; w.style.left=`${x}px`; w.style.top=`${y}px`; container.appendChild(w);
+    setTimeout(()=>{ if(w.parentNode===container) container.removeChild(w); },1500);
   }
-  
-  document.addEventListener('mousemove', (e) => {
-    if (activeModule !== 'typography') return;
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    cursor.style.left = mouseX + 'px';
-    cursor.style.top = mouseY + 'px';
-    cursorDot.style.left = mouseX + 'px';
-    cursorDot.style.top = mouseY + 'px';
-    
-    const sentences = document.querySelectorAll('.sentence');
-    let closestDist = Infinity;
-    let closestIndex = null;
-    
-    sentences.forEach((sentence, index) => {
-      const rect = sentence.getBoundingClientRect();
-      const centerY = rect.top + rect.height / 2;
-      const dist = Math.abs(mouseY - centerY);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestIndex = index;
-      }
-    });
-    
-    if (closestIndex !== null && closestIndex !== activeSentenceIndex) {
-      sentences.forEach(s => s.classList.remove('focused'));
-      sentences[closestIndex].classList.add('focused');
-      activeSentenceIndex = closestIndex;
-    }
+  document.addEventListener('mousemove',e=>{
+    if(activeModule!=='typography')return;
+    mouseX=e.clientX; mouseY=e.clientY; cursor.style.left=mouseX+'px'; cursor.style.top=mouseY+'px'; cursorDot.style.left=mouseX+'px'; cursorDot.style.top=mouseY+'px';
+    const sList=document.querySelectorAll('.sentence'); let best=Infinity, idx=null;
+    sList.forEach((s,i)=>{const r=s.getBoundingClientRect(); const cy=r.top+r.height/2; const d=Math.abs(mouseY-cy); if(d<best){best=d; idx=i;}});
+    if(idx!==null && idx!==activeSentenceIndex){ sList.forEach(s=>s.classList.remove('focused')); sList[idx].classList.add('focused'); activeSentenceIndex=idx; }
   });
-  
-  modules.typography.addEventListener('click', (e) => {
-    if (activeModule !== 'typography') return;
-    createWave(e.clientX, e.clientY);
-    typoHiddenInput.focus();
+  modules.typography.addEventListener('click',e=>{ if(activeModule!=='typography')return; createWave(e.clientX,e.clientY); typoHiddenInput.focus(); });
+  typoHiddenInput.addEventListener('input',()=>{ if(activeModule!=='typography')return; typedText=typoHiddenInput.value; typingArea.textContent=typedText; typingArea.style.opacity=typedText?'1':'0';
+    if(typedText.length>0){ const last=typedText.at(-1); createFloatingLetter(last, Math.random()*innerWidth, Math.random()*innerHeight); }
   });
-  
-  typoHiddenInput.addEventListener('input', () => {
-    if (activeModule !== 'typography') return;
-    typedText = typoHiddenInput.value;
-    typingArea.textContent = typedText;
-    typingArea.style.opacity = typedText ? '1' : '0';
-    
-    if (typedText.length > 0) {
-      const lastChar = typedText[typedText.length - 1];
-      const randomX = Math.random() * window.innerWidth;
-      const randomY = Math.random() * window.innerHeight;
-      createFloatingLetter(lastChar, randomX, randomY);
-    }
-  });
-  
-  typoHiddenInput.addEventListener('keydown', (e) => {
-    if (activeModule !== 'typography') return;
-    if (e.key === 'Enter' && typedText.trim() !== '') {
-      createSentence(typedText);
-      typedText = '';
-      typoHiddenInput.value = '';
-      typingArea.textContent = '';
-      typingArea.style.opacity = '0';
-      e.preventDefault();
-    }
-  });
-  
-  initialSentences.forEach(sentence => createSentence(sentence));
+  typoHiddenInput.addEventListener('keydown',e=>{ if(activeModule!=='typography')return; if(e.key==='Enter' && typedText.trim()!==''){ createSentence(typedText); typedText=''; typoHiddenInput.value=''; typingArea.textContent=''; typingArea.style.opacity='0'; e.preventDefault(); }});
+  initialSentences.forEach(createSentence);
 })();
 
-// ============================================
-// PLAYGROUND MODULE
-// ============================================
-(function() {
-  const textContainer = document.getElementById('text-container');
-  const textInput = document.getElementById('textInput');
-  const morphMode = document.getElementById('morphMode');
-  const colorPicker = document.getElementById('color-picker');
-  const pgFontSelect = document.getElementById('pg-font-select');
-  const app = document.getElementById('app');
-  const modeIndicator = document.getElementById('mode-indicator');
-  
-  let isDragging = false;
-  let startX, startY;
-  let originalText = '안녕';
-  let pgMode = 'drag';
-  let animationFrame;
-  let particles = [];
-  let lastTime = 0;
-  let intensity = 10;
-  
-  textInput.addEventListener('input', (e) => {
-    const newText = e.target.value || '안녕';
-    textContainer.textContent = newText;
-    originalText = newText;
-    resetEffects();
-  });
-  
-  colorPicker.addEventListener('input', (e) => {
-    textContainer.style.color = e.target.value;
-  });
-  
-  pgFontSelect.addEventListener('change', (e) => {
-    textContainer.style.fontFamily = `'${e.target.value}', sans-serif`;
-  });
-  
-  document.addEventListener('keydown', (e) => {
-    if (activeModule !== 'playground') return;
-    
-    if (e.code === 'Space') {
-      e.preventDefault();
-      const modeOptions = morphMode.options;
-      let nextIndex = (morphMode.selectedIndex + 1) % modeOptions.length;
-      morphMode.selectedIndex = nextIndex;
-      morphMode.dispatchEvent(new Event('change'));
-      return;
-    }
-    
-    if (e.key.startsWith('Arrow')) {
-      e.preventDefault();
-      switch (e.key) {
-        case 'ArrowUp':
-          intensity = Math.min(intensity + 5, 30);
-          break;
-        case 'ArrowDown':
-          intensity = Math.max(intensity - 5, 5);
-          break;
-      }
-      modeIndicator.textContent = `${pgMode} 모드 (강도: ${intensity})`;
-      setTimeout(() => {
-        modeIndicator.textContent = `${pgMode} 모드`;
-      }, 1000);
-    }
-    
-    if (pgMode === 'type') {
-      if (e.key === 'Backspace') {
-        const currentText = textContainer.textContent;
-        if (currentText.length > 0) {
-          const newText = currentText.slice(0, -1);
-          textContainer.textContent = newText;
-          textInput.value = newText;
-          originalText = newText;
-        }
-      } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        const currentText = textContainer.textContent;
-        const newText = currentText + e.key;
-        if (newText.length <= 200) {
-          textContainer.textContent = newText;
-          textInput.value = newText;
-          originalText = newText;
-          textContainer.style.transform = 'scale(1.05)';
-          setTimeout(() => {
-            textContainer.style.transform = 'scale(1)';
-          }, 100);
-        }
-      }
-    }
-  });
-  
-  textContainer.addEventListener('mousedown', (e) => {
-    if (activeModule !== 'playground') return;
-    if (pgMode === 'drag') {
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      textContainer.style.transition = 'none';
-      textContainer.style.cursor = 'grabbing';
-    } else if (pgMode === 'explode') {
-      createParticles(e.clientX, e.clientY, intensity * 10);
-    }
-  });
-  
-  document.addEventListener('mousemove', (e) => {
-    if (activeModule !== 'playground' && isDragging && pgMode === 'drag') {
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
-      const rotation = deltaX / 15;
-      textContainer.style.transform = 
-        `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
-    }
-  });
-  
-  document.addEventListener('mouseup', () => {
-    if (isDragging) {
-      isDragging = false;
-      textContainer.style.transition = 'all 0.3s ease';
-      textContainer.style.transform = 'none';
-      textContainer.style.cursor = 'grab';
-    }
-  });
-  
-  morphMode.addEventListener('change', (e) => {
-    resetEffects();
-    pgMode = e.target.value;
-    modeIndicator.textContent = `${pgMode} 모드`;
-    
-    if (pgMode === 'drag') {
-      document.body.style.cursor = 'grab';
-    } else {
-      document.body.style.cursor = 'auto';
-    }
-    
-    if (['wave', 'twist', 'shake'].includes(pgMode)) {
-      startAnimation();
-    }
-  });
-  
-  function startAnimation() {
-    cancelAnimationFrame(animationFrame);
-    animateEffect();
-  }
-  
-  function animateEffect(timestamp = 0) {
-    if (activeModule !== 'playground') {
-      cancelAnimationFrame(animationFrame);
-      return;
-    }
-    
-    if (timestamp - lastTime < 16) {
-      animationFrame = requestAnimationFrame(animateEffect);
-      return;
-    }
-    
-    lastTime = timestamp;
-    
-    if (pgMode === 'wave') {
-      const chars = originalText.split('');
-      const now = Date.now() / 300;
-      textContainer.innerHTML = chars.map((char, i) => {
-        const offset = Math.sin(now + i * 0.5) * intensity;
-        const rotation = Math.sin(now + i * 0.3) * 2;
-        return `<span style="display:inline-block;transform:translateY(${offset}px) rotate(${rotation}deg);transition:transform 0.1s ease;">${char}</span>`;
-      }).join('');
-    } else if (pgMode === 'twist') {
-      const chars = originalText.split('');
-      const now = Date.now() / 300;
-      textContainer.innerHTML = chars.map((char, i) => {
-        const rotation = Math.sin(now + i * 0.8) * intensity * 3;
-        const scale = 1 + Math.sin(now + i * 0.4) * 0.1;
-        return `<span style="display:inline-block;transform:rotate(${rotation}deg) scale(${scale});transition:transform 0.1s ease;">${char}</span>`;
-      }).join('');
-    } else if (pgMode === 'shake') {
-      const chars = originalText.split('');
-      textContainer.innerHTML = chars.map((char) => {
-        const offsetX = (Math.random() - 0.5) * intensity;
-        const offsetY = (Math.random() - 0.5) * intensity;
-        const rotation = (Math.random() - 0.5) * 10;
-        return `<span style="display:inline-block;transform:translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg);">${char}</span>`;
-      }).join('');
-    }
-    
-    animationFrame = requestAnimationFrame(animateEffect);
-  }
-  
-  function createParticles(x, y, radius) {
-    cleanupParticles();
-    const count = Math.min(originalText.length * 3, 60);
-    
-    for (let i = 0; i < count; i++) {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      const charIndex = Math.floor(Math.random() * originalText.length);
-      particle.textContent = originalText[charIndex] || '안';
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      particle.style.color = textContainer.style.color || '#000000';
-      
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * radius;
-      const size = Math.random() * 20 + 10;
-      
-      particle.style.fontSize = `${size}px`;
-      app.appendChild(particle);
-      particles.push(particle);
-      
-      setTimeout(() => {
-        const finalX = Math.cos(angle) * distance;
-        const finalY = Math.sin(angle) * distance;
-        particle.style.transform = `translate(${finalX}px, ${finalY}px)`;
-        particle.style.opacity = '0.8';
-      }, 10);
-      
-      setTimeout(() => {
-        particle.style.opacity = '0';
-      }, 400);
-    }
-    
-    setTimeout(cleanupParticles, 1200);
-  }
-  
-  function cleanupParticles() {
-    particles.forEach(particle => {
-      if (particle.parentNode) {
-        particle.parentNode.removeChild(particle);
-      }
-    });
-    particles = [];
-  }
-  
-  function resetEffects() {
-    cancelAnimationFrame(animationFrame);
-    cleanupParticles();
-    textContainer.innerHTML = originalText;
-    textContainer.style.transform = 'none';
-    textContainer.style.transition = 'all 0.3s ease';
-    textContainer.style.cursor = pgMode === 'drag' ? 'grab' : 'auto';
-  }
-})();
-
-// 홈 버튼
-document.getElementById('home-button').addEventListener('click', (e) => {
-  e.preventDefault();
-  // index.html의 list-section으로 이동
-  window.location.href = 'index.html#list-section';
-});
-
-/* === [ADD-ON] TEXT WAVE MODULE (NO CHANGE TO EXISTING CODE) === */
+/* ---------------- NEW: 우산 인터랙션 ---------------- */
 (function(){
-  // 1) 탭 버튼 동적 생성
-  const tabContainer = document.querySelector('.tab-container');
-  const waveTab = document.createElement('button');
-  waveTab.id = 'text-wave-tab';
-  waveTab.className = 'tab-button';
-  waveTab.textContent = '텍스트 파동';
-  tabContainer.appendChild(waveTab);
+  const moduleEl = document.getElementById('umbrella-module');
+  const wrap     = document.getElementById('umbrella-wrap');
+  const c        = document.getElementById('umbrella-canvas');
+  const g        = c.getContext('2d',{alpha:true});
+  const umbrellaImg = document.getElementById('umbrella-img');
 
-  // 2) 모듈 DOM 동적 생성
-  const waveModule = document.createElement('div');
-  waveModule.id = 'text-wave-module';
-  waveModule.className = 'module'; // 기존 .module 스타일 재사용
-  waveModule.innerHTML = `
-    <canvas id="text-wave-canvas"></canvas>
-    <div id="text-wave-instruction">문장을 입력하고 마우스로 파동을 흔들어보세요</div>
-    <div id="text-wave-controls" role="group" aria-label="텍스트 파동 제어">
-      <input type="text" id="tw-text" value="너만의 파동을 일으켜" maxlength="100" aria-label="문장 입력">
-      <div class="kv"><label for="tw-font">폰트</label>
-        <select id="tw-font">
-          <option value="Pretendard">Pretendard</option>
-          <option value="Noto Sans KR">Noto Sans KR</option>
-          <option value="Nanum Gothic">나눔고딕</option>
-          <option value="Nanum Myeongjo">나눔명조</option>
-        </select>
-      </div>
-      <div class="kv"><label for="tw-color">색상</label><input type="color" id="tw-color" value="#000000"></div>
-      <div class="kv"><label for="tw-size">크기</label><input type="range" id="tw-size" min="14" max="96" value="48"><span id="tw-size-v">48</span></div>
-      <div class="kv"><label for="tw-amp">진폭</label><input type="range" id="tw-amp" min="4" max="140" value="60"><span id="tw-amp-v">60</span></div>
-      <div class="kv"><label for="tw-wave">파장</label><input type="range" id="tw-wave" min="40" max="500" value="220"><span id="tw-wave-v">220</span></div>
-      <div class="kv"><label for="tw-speed">속도</label><input type="range" id="tw-speed" min="0" max="300" value="120"><span id="tw-speed-v">1.20</span></div>
-      <div class="kv"><label for="tw-gap">줄간</label><input type="range" id="tw-gap" min="24" max="160" value="64"><span id="tw-gap-v">64</span></div>
-    </div>
-  `;
-  document.body.appendChild(waveModule);
-
-  // 3) 기존 전역 switchModule / tabs / modules와 연결
-  //    (기존 객체를 건드리지 않고 속성만 추가)
-  tabs.textWave = waveTab;
-  modules.textWave = waveModule;
-  waveTab.addEventListener('click', () => switchModule('textWave'));
-
-  // 4) 캔버스 렌더러
-  const canvas = waveModule.querySelector('#text-wave-canvas');
-  const ctx = canvas.getContext('2d');
-
-  // 컨트롤 참조
-  const inpText  = waveModule.querySelector('#tw-text');
-  const selFont  = waveModule.querySelector('#tw-font');
-  const inpColor = waveModule.querySelector('#tw-color');
-  const rgSize   = waveModule.querySelector('#tw-size');
-  const rgAmp    = waveModule.querySelector('#tw-amp');
-  const rgWave   = waveModule.querySelector('#tw-wave');
-  const rgSpeed  = waveModule.querySelector('#tw-speed');
-  const rgGap    = waveModule.querySelector('#tw-gap');
-
-  const vSize  = waveModule.querySelector('#tw-size-v');
-  const vAmp   = waveModule.querySelector('#tw-amp-v');
-  const vWave  = waveModule.querySelector('#tw-wave-v');
-  const vSpeed = waveModule.querySelector('#tw-speed-v');
-  const vGap   = waveModule.querySelector('#tw-gap-v');
-
-  // 상태
-  let W = 0, H = 0, DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-  let phrase = inpText.value;
-  let fontFamily = selFont.value;
-  let color = inpColor.value;
-  let fontSize = +rgSize.value;
-  let amplitude = +rgAmp.value;
-  let wavelength = +rgWave.value;
-  let speed = +rgSpeed.value / 100;   // 0~3.0
-  let lineGap = +rgGap.value;
-
-  let t = 0;
-  let mouse = {x:0, y:0};
-  let ripples = []; // {x,y,life}
-
+  // DPR/리사이즈
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  let W=0,H=0;
   function resize(){
-    W = canvas.clientWidth; H = canvas.clientHeight;
-    canvas.width = Math.floor(W * DPR);
-    canvas.height = Math.floor(H * DPR);
-    ctx.setTransform(DPR,0,0,DPR,0,0);
+    W = c.width  = Math.floor(innerWidth * DPR);
+    H = c.height = Math.floor(innerHeight* DPR);
+    c.style.width  = innerWidth  + 'px';
+    c.style.height = innerHeight + 'px';
+    g.setTransform(DPR,0,0,DPR,0,0);
   }
-  resize(); window.addEventListener('resize', resize);
+  addEventListener('resize', resize, {passive:true}); resize();
 
-  // 마우스 상호작용: 이동은 미세한 파형 가중, 클릭은 점발(방사 파동) 생성
-  waveModule.addEventListener('mousemove', (e)=>{
-    if(activeModule !== 'textWave') return;
-    mouse.x = e.clientX; mouse.y = e.clientY;
-  });
-  waveModule.addEventListener('click', (e)=>{
-    if(activeModule !== 'textWave') return;
-    ripples.push({x:e.clientX, y:e.clientY, life:0}); // life 0~1
+  // 배경색 전환
+  const colors = ["#0066cc","#222","#0044aa","#005577","#8800cc","#008855","#cc6600","#990000"];
+  let colorIndex = 0;
+  wrap.addEventListener('click', ()=>{
+    if(activeModule!=='umbrella') return;
+    colorIndex = (colorIndex + 1) % colors.length;
+    moduleEl.style.background = colors[colorIndex];
   });
 
-  // 컨트롤 이벤트
-  function bindRange(r, v, fmt=(x)=>x){
-    const update = ()=>{ v.textContent = fmt(r.value); };
-    r.addEventListener('input', update); update();
+  // ------ 사운드 ------
+  const bgRain  = document.getElementById('umb-bgRain');
+  const drop1   = document.getElementById('umb-drop1');
+  const drop2   = document.getElementById('umb-drop2');
+  const bounce1 = document.getElementById('umb-bounce1');
+  const bounce2 = document.getElementById('umb-bounce2');
+  bgRain.volume = 0.25;
+  const dropSounds   = [drop1, drop2];
+  const bounceSounds = [bounce1, bounce2];
+
+  const startAudio = ()=>{ if(activeModule!=='umbrella') return; bgRain.play().catch(()=>{}); };
+  wrap.addEventListener('click', startAudio, {once:true});
+
+  function playSound(arr, vol=1){
+    const s = arr[(Math.random()*arr.length)|0].cloneNode();
+    s.volume = vol;
+    s.play();
   }
-  bindRange(rgSize,  vSize,  v=>v);
-  bindRange(rgAmp,   vAmp,   v=>v);
-  bindRange(rgWave,  vWave,  v=>v);
-  bindRange(rgSpeed, vSpeed, v=>(+v/100).toFixed(2));
-  bindRange(rgGap,   vGap,   v=>v);
 
-  inpText.addEventListener('input', ()=>{ phrase = inpText.value || '너만의 파동을 일으켜'; });
-  selFont.addEventListener('change', ()=>{ fontFamily = selFont.value; });
-  inpColor.addEventListener('input', ()=>{ color = inpColor.value; });
-  rgSize.addEventListener('input', ()=>{ fontSize = +rgSize.value; });
-  rgAmp.addEventListener('input', ()=>{ amplitude = +rgAmp.value; });
-  rgWave.addEventListener('input', ()=>{ wavelength = +rgWave.value; });
-  rgSpeed.addEventListener('input', ()=>{ speed = +rgSpeed.value/100; });
-  rgGap.addEventListener('input', ()=>{ lineGap = +rgGap.value; });
+  // 물리/파티클
+  const JAMO = "ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅅ ㅇ ㅈ ㅊ ㅋ ㅌ ㅍ ㅎ ㅏ ㅓ ㅗ ㅜ ㅡ ㅣ".split(" ");
+  const choice = a => a[(Math.random()*a.length)|0];
+  const rand   = (a,b)=> a + Math.random()*(b-a);
 
-  // 헬퍼: 텍스트 패턴 만들기 (캔버스 폭을 넘도록 반복)
-  function makeRowText(minWidth){
-    if(!phrase) return '';
-    let s = phrase + '   ';
-    while(measureText(s) < minWidth + 200){
-      s += phrase + '   ';
+  const BASE_G = 0.03, MAX = 320, FONT = 34, AIR_BASE = 0.996, UMB_MIN_UP = 3.0, UMB_UP_GAIN = 0.5, UMB_SIDE_KICK = 0.55;
+
+  const umbrella = { x: innerWidth/2, y: innerHeight/3, r: Math.min(innerWidth,innerHeight)*0.12,
+    follow(x,y){ this.x=x; this.y=y; }
+  };
+
+  // 마우스/터치 추적 (모듈 한정)
+  wrap.addEventListener('mousemove', e=>{
+    if(activeModule!=='umbrella') return;
+    umbrella.follow(e.clientX, e.clientY);
+  }, {passive:true});
+  wrap.addEventListener('touchmove', e=>{
+    if(activeModule!=='umbrella') return;
+    const t=e.touches[0]; umbrella.follow(t.clientX, t.clientY);
+  }, {passive:true});
+
+  // 이밋터
+  const emitters = []; const EMITTER_COUNT = 7;
+  for(let i=0;i<EMITTER_COUNT;i++){
+    const x0 = (i+0.5)/EMITTER_COUNT * innerWidth;
+    emitters.push({
+      xMin: Math.max(0, x0 - innerWidth*(0.5/EMITTER_COUNT)),
+      xMax: Math.min(innerWidth, x0 + innerWidth*(0.5/EMITTER_COUNT)),
+      rate: 4.5 + Math.random()*3.0,
+      nextAt: 0
+    });
+  }
+  const expInterval = rate => -Math.log(1-Math.random()) / rate;
+
+  const particles = [];
+  let simTime = 0;
+
+  // 우산 외곽선 표시 여부 (요청: 선/곡선 제거)
+  const SHOW_UMBRELLA_OUTLINE = false;
+
+  class P{
+    constructor(){ this.reset(true); }
+    reset(fresh=false){
+      this.char = choice(JAMO);
+      this.size = FONT + rand(-3,3);
+      this.x = rand(0, innerWidth);
+      this.y = fresh ? rand(-H*0.8, H*0.6) : -20;
+      this.vx = rand(-0.25, 0.25);
+      this.vy = rand(0.4, 1.5);
+      this.spin = rand(-0.02, 0.02);
+      this.rot  = rand(-Math.PI, Math.PI);
+      this.g    = BASE_G * rand(0.85, 1.15);
+      this.drag = AIR_BASE * rand(0.993, 0.999);
+      this.seed = Math.random()*1000;
+      this.active = true;
+      this.respawnAt = 0;
     }
-    return s;
-  }
-  function measureText(s){
-    return ctx.measureText(s).width;
-  }
-
-  // 렌더
-  function draw(dt){
-    if(activeModule !== 'textWave') return; // 비활성 시 그리기 생략(퍼포먼스)
-
-    t += dt * speed;
-
-    // 배경
-    ctx.clearRect(0,0,W,H);
-
-    // 글꼴 설정
-    ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
-    ctx.fillStyle = color;
-
-    // 줄 루프: 화면을 덮도록 위아래로
-    const startY = (H % lineGap) / 2;
-    for(let y = startY; y <= H + lineGap; y += lineGap){
-      // 한 줄 기준 사인 파동
-      // 기본 파형 + 마우스 근접 보정 + 클릭 리플 섞기
-      const rowText = makeRowText(W);
-      // x 위치는 텍스트 길이에 맞춰 일정 간격으로 찍는다
-      let x = -50; // 약간 좌측에서 시작해 자연스러운 시작
-      const step = Math.max(16, fontSize * 0.6); // 글자 간격 대략치
-
-      for(let i=0; i<rowText.length; i++){
-        const ch = rowText[i];
-
-        // 기본 사인
-        const base = Math.sin((x + t*160) / wavelength) * amplitude;
-
-        // 마우스 따라가는 국소 왜곡(가우시안)
-        const dx = x - mouse.x, dy = y - mouse.y;
-        const dist = Math.hypot(dx,dy);
-        const falloff = Math.exp(-dist/300); // 0~1
-        const follow = Math.sin((dist - t*200) / 24) * amplitude * 0.35 * falloff;
-
-        // 클릭 리플(여러 개)
-        let rippleY = 0;
-        for(const r of ripples){
-          const ddx = x - r.x, ddy = y - r.y;
-          const d = Math.hypot(ddx,ddy);
-          const w = 8; // 리플 파장 느낌
-          const decay = Math.exp(-d/260) * (1 - r.life); // 퍼지며 사라짐
-          rippleY += Math.sin(d/w - (t*6)) * amplitude * 0.5 * decay;
-        }
-
-        const yOffset = base + follow + rippleY;
-
-        // 문자 그리기
-        ctx.save();
-        // 살짝 기울기(파도 방향 회전)
-        const tilt = Math.cos((x + t*160) / wavelength) * 0.08;
-        ctx.translate(x, y + yOffset);
-        ctx.rotate(tilt);
-        ctx.fillText(ch, 0, 0);
-        ctx.restore();
-
-        x += step;
-        if(x > W + 100) break;
+    scheduleRespawn(delay){
+      this.active = false;
+      this.respawnAt = simTime + delay;
+      this.xNext = rand(0, innerWidth);
+      this.vxNext = rand(-0.25, 0.25);
+      this.vyNext = rand(0.5, 1.4);
+    }
+    maybeRespawn(){
+      if(!this.active && simTime >= this.respawnAt){
+        this.active = true;
+        this.x = this.xNext; this.y = -20;
+        this.vx = this.vxNext; this.vy = this.vyNext;
+        this.g = BASE_G * rand(0.85, 1.15);
+        this.drag = AIR_BASE * rand(0.993, 0.999);
+        this.seed = Math.random()*1000;
+        playSound(dropSounds, 0.12);
       }
     }
+    step(t){
+      if(!this.active){ this.maybeRespawn(); return; }
+      const wind = Math.sin(t*1.35 + this.seed*2.11)*0.016 + Math.cos(t*0.72 + this.seed*5.29)*0.011;
+      this.vx += wind;
+      this.vy += this.g;
+      this.vx *= this.drag; this.vy *= this.drag;
+      this.x  += this.vx;   this.y  += this.vy;
+      this.rot+= this.spin;
 
-    // 리플 수명 증가 & 정리
-    ripples.forEach(r => r.life = Math.min(1, r.life + dt*0.5));
-    ripples = ripples.filter(r => r.life < 1);
+      const dx=this.x-umbrella.x, dy=this.y-umbrella.y, dist=Math.hypot(dx,dy), R=umbrella.r;
+      if(dist<R){
+        const nx=dx/(dist||1), ny=dy/(dist||1);
+        const dot=this.vx*nx + this.vy*ny;
+        this.vx -= 2*dot*nx; this.vy -= 2*dot*ny;
+        const up = Math.max(UMB_MIN_UP, Math.abs(dot)*UMB_MIN_UP*UMB_UP_GAIN + UMB_MIN_UP);
+        this.vy = -up;
+        this.vx += (Math.random()-0.5)*UMB_SIDE_KICK;
+        const push = R - dist + 0.8; this.x += nx*push; this.y += ny*push;
+        playSound(bounceSounds, 0.25);
+      }
+      if(this.y<-60 || this.y>innerHeight+100){ this.scheduleRespawn(rand(0.05,0.6)); return; }
+    }
+    draw(){
+      if(!this.active) return;
+      g.save();
+      g.translate(this.x,this.y); g.rotate(this.rot);
+      g.font = `${this.size}px Pretendard`; g.fontWeight='700'; g.textAlign='center'; g.textBaseline='alphabetic'; g.fillStyle='white';
+      g.fillText(this.char, 0, 0);
+      g.restore();
+    }
+  }
+  for(let i=0;i<160;i++) particles.push(new P(true));
+
+  function drawUmbrella(){
+    if(!SHOW_UMBRELLA_OUTLINE) return; // 요청에 따라 윤곽선 감춤
+    const {x,y,r}=umbrella;
+    g.save(); g.lineWidth=1.2; g.strokeStyle='rgba(255,255,255,.9)';
+    g.beginPath(); g.arc(x,y,r,Math.PI,0,false); g.stroke();
+    g.beginPath(); g.moveTo(x,y); g.lineTo(x,y+r*0.9);
+    g.arc(x-r*0.22,y+r*0.9,r*0.22,1.5*Math.PI,0.3*Math.PI,true); g.stroke(); g.restore();
   }
 
-  // 루프
-  let last = performance.now();
-  function loop(now){
-    const dt = Math.min(0.05, (now - last)/1000);
-    last = now;
-    draw(dt);
-    requestAnimationFrame(loop);
+  // 이미지 위치를 우산 좌표에 동기화
+  function syncUmbrellaImage(){
+    if(activeModule!=='umbrella') { requestAnimationFrame(syncUmbrellaImage); return; }
+    umbrellaImg.style.left = umbrella.x + 'px';
+    umbrellaImg.style.top  = umbrella.y + 'px';
+    requestAnimationFrame(syncUmbrellaImage);
   }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(syncUmbrellaImage);
+
+  let last=performance.now();
+  function frame(now){
+    if(activeModule!=='umbrella'){ last=now; requestAnimationFrame(frame); return; }
+    const dt=Math.min(0.05,(now-last)/1000); last=now; simTime+=dt;
+
+    g.clearRect(0,0,innerWidth,innerHeight);
+    drawUmbrella(); // 호출은 유지하되 내부에서 바로 return되어 선/곡선 미표시
+
+    for(const em of emitters){
+      while(simTime>=em.nextAt && particles.length<MAX){
+        const p=new P(false); p.x=rand(em.xMin,em.xMax); p.y=-20; particles.push(p); em.nextAt+=expInterval(em.rate);
+      }
+    }
+    const t=simTime;
+    for(let i=0;i<particles.length;i++){ particles[i].step(t); particles[i].draw(); }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
+
+/* 홈 버튼 이동 */
+document.getElementById('home-button').addEventListener('click',e=>{
+  e.preventDefault(); window.location.href='index.html#list-section';
+});
 </script>
 </body>
 </html>
