@@ -4,33 +4,67 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>찢어진 천 사이로, 파동을 느껴요.</title>
+
+<!-- Pretendard Variable -->
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;overflow:hidden;font-family:Arial,sans-serif;height:100vh;width:100vw;cursor:url('image/mou.png'),auto}
-#home-button{position:fixed;left:20px;top:20px;z-index:1000;width:50px;height:50px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.12));border:.5px solid rgba(255,255,255,.1);border-radius:50%;cursor:url('image/mou.png'),auto;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-#home-button:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 20px rgba(0,0,0,.3)}
-#home-button svg{width:24px;height:24px;fill:rgba(255,255,255,.7);transition:all .3s ease}
-#home-button:hover svg{fill:#fff}
-.fabric-mode{width:100%;height:100vh;position:relative;overflow:hidden}
-#fabricCanvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:url('image/mou.png'),auto}
-.instruction{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:#fff;font-size:15px;font-weight:600;animation:pulse 3s ease-in-out infinite;text-align:center;background:rgba(0,0,0,.7);padding:14px 24px;border-radius:18px;border:1px solid rgba(255,255,255,.4);letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
-@keyframes pulse{0%,100%{opacity:.9}50%{opacity:1}}
-@media(max-width:768px){
-  #home-button{width:45px;height:45px;left:15px;top:15px}
-  #home-button svg{width:20px;height:20px}
-  .instruction{font-size:13px;padding:10px 18px}
-}
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#000;
+    overflow:hidden;
+    height:100vh;width:100vw;
+    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    cursor:url('image/mou.png'),auto;
+  }
+
+  /* 홈 버튼: 배경/테두리 없이 텍스트 화살표만 */
+  #home-button{
+    position:fixed; left:20px; top:20px; z-index:1000;
+    font-weight:600;
+    font-size:28px; line-height:1;
+    color:rgba(255,255,255,.9);
+    text-decoration:none;
+    letter-spacing:0;
+    cursor:url('image/mou.png'),auto;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    transition:transform .2s ease, color .2s ease, opacity .2s ease;
+  }
+  #home-button:hover{ transform:translateY(-1px); color:#fff; }
+  #home-button:active{ transform:translateY(0); opacity:.8; }
+
+  .fabric-mode{width:100%;height:100vh;position:relative;overflow:hidden}
+  #fabricCanvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:url('image/mou.png'),auto}
+
+  .instruction{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    color:#fff;font-size:15px;font-weight:600;text-align:center;
+    background:rgba(0,0,0,.7);padding:14px 24px;border-radius:18px;
+    border:1px solid rgba(255,255,255,.4);letter-spacing:.5px;
+    text-shadow:0 1px 2px rgba(0,0,0,.8);
+    animation:pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse{0%,100%{opacity:.9}50%{opacity:1}}
+
+  @media(max-width:768px){
+    #home-button{ left:14px; top:14px; font-size:24px }
+    .instruction{ font-size:13px; padding:10px 18px }
+  }
 </style>
 </head>
 <body>
-<!-- 홈버튼 수정됨 -->
-<a id="home-button" href="./index.html#list-section">
-  <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-</a>
+
+<!-- 홈: Pretendard의 왼쪽 화살표 문자 사용 -->
+<a id="home-button" href="./index.html#list-section" aria-label="뒤로">←</a>
+
 <div id="fabricMode" class="fabric-mode">
   <canvas id="fabricCanvas"></canvas>
   <div class="instruction">찢어진 천 사이로, 파동을 느껴요.</div>
 </div>
+
 <script>
 let fabricAnimationId;
 function goHome(){
@@ -46,16 +80,20 @@ function goHome(){
     }
   }
 }
+
 let fabricCanvas,fabricCtx,fabricWidth,fabricHeight,fabricTime=0,fabricMouseX=0,fabricMouseY=0;
 let ripples=[],fabricThreads=[];
+
 function initFabricMode(){
   fabricCanvas=document.getElementById('fabricCanvas');
   fabricCtx=fabricCanvas.getContext('2d');
+
   function resizeFabricCanvas(){
     fabricWidth=fabricCanvas.width=window.innerWidth;
     fabricHeight=fabricCanvas.height=window.innerHeight;
     initializeFabricThreads();
   }
+
   function initializeFabricThreads(){
     fabricThreads=[];
     for(let x=0;x<fabricWidth;x+=8){
@@ -85,6 +123,7 @@ function initFabricMode(){
       }
     }
   }
+
   function drawTornFabric(){
     fabricCtx.fillStyle='#000';
     fabricCtx.fillRect(0,0,fabricWidth,fabricHeight);
@@ -95,6 +134,7 @@ function initFabricMode(){
     fabricTime+=0.2;
     fabricAnimationId=requestAnimationFrame(drawTornFabric);
   }
+
   function drawFabricDust(){
     fabricCtx.globalAlpha=0.03;
     for(let i=0;i<40;i++){
@@ -104,6 +144,7 @@ function initFabricMode(){
     }
     fabricCtx.globalAlpha=1;
   }
+
   function drawFabricThreads(){
     fabricThreads.forEach(thread=>{
       fabricCtx.save();
@@ -117,6 +158,7 @@ function initFabricMode(){
       fabricCtx.restore();
     });
   }
+
   function drawVerticalTornThread(thread){
     let seg=[];
     thread.points.forEach((p,idx)=>{
@@ -158,6 +200,7 @@ function initFabricMode(){
       }
     });
   }
+
   function drawHorizontalTornThread(thread){
     let seg=[];
     thread.points.forEach((p,idx)=>{
@@ -197,6 +240,7 @@ function initFabricMode(){
       }
     });
   }
+
   function drawTornSegment(segment){
     if(segment.length<2)return;
     fabricCtx.beginPath();
@@ -213,6 +257,7 @@ function initFabricMode(){
     }
     fabricCtx.stroke();
   }
+
   function drawFiberEnds(thread){
     fabricCtx.globalAlpha=0.4;
     fabricCtx.lineWidth=0.3;
@@ -237,6 +282,7 @@ function initFabricMode(){
     });
     fabricCtx.globalAlpha=1;
   }
+
   function drawRipples(){
     ripples=ripples.filter(r=>r.life>0);
     ripples.forEach(r=>{
@@ -266,6 +312,7 @@ function initFabricMode(){
       fabricCtx.restore();
     });
   }
+
   function drawMouseDisturbance(){
     fabricCtx.save();
     fabricCtx.globalAlpha=0.15;
@@ -276,14 +323,17 @@ function initFabricMode(){
     fabricCtx.fillRect(fabricMouseX-60,fabricMouseY-60,120,120);
     fabricCtx.restore();
   }
+
   window.addEventListener('resize',resizeFabricCanvas);
   fabricCanvas.addEventListener('mousemove',e=>{fabricMouseX=e.clientX;fabricMouseY=e.clientY;});
   fabricCanvas.addEventListener('click',e=>{
     ripples.push({x:e.clientX,y:e.clientY,radius:0,maxRadius:250+Math.random()*150,amplitude:12+Math.random()*18,frequency:0.08+Math.random()*0.12,life:1.0,decay:0.008+Math.random()*0.004,speed:2+Math.random()*2,phase:Math.random()*Math.PI*2,tearForce:0.3+Math.random()*0.4});
   });
+
   resizeFabricCanvas();
   drawTornFabric();
 }
+
 window.addEventListener('load',()=>{initFabricMode();});
 document.addEventListener('keydown',e=>{
   if(e.key==='h'||e.key==='H'||e.key==='Home')window.location.href='./index.html#list-section';
