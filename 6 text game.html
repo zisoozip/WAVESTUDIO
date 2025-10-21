@@ -621,6 +621,39 @@ html {
     width: 100%;
   }
 }
+
+/* === [ADD-ON] TEXT WAVE MODULE STYLES === */
+#text-wave-module {
+  background:#fff;
+}
+#text-wave-canvas{
+  position:absolute; inset:0; width:100%; height:100%;
+}
+#text-wave-instruction{
+  position:fixed; top:84px; left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,0.95); border:1px solid #e8e9ea;
+  padding:10px 16px; border-radius:20px; font-size:13px; color:#666;
+  backdrop-filter:blur(10px); box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:1000;
+}
+#text-wave-controls{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;
+  background:rgba(255,255,255,0.95); border:1px solid #e8e9ea; padding:10px 14px;
+  border-radius:16px; backdrop-filter:blur(10px); box-shadow:0 4px 16px rgba(0,0,0,0.08); z-index:1000;
+  max-width:90%;
+}
+#text-wave-controls input[type="text"]{
+  min-width:200px; padding:8px 10px; border:1px solid #e8e9ea; border-radius:8px; font-size:13px; color:#666; background:#fff;
+}
+#text-wave-controls input[type="range"]{
+  width:140px;
+}
+#text-wave-controls select, #text-wave-controls input[type="color"]{
+  padding:6px 8px; border:1px solid #e8e9ea; border-radius:8px; background:#fff; color:#666; font-size:13px;
+}
+#text-wave-controls .kv{
+  display:flex; align-items:center; gap:6px; font-size:12px; color:#666;
+}
 </style>
 </head>
 <body>
@@ -1144,10 +1177,10 @@ let drawingInput = null;
   });
   
   document.getElementById('clear-btn').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawnChars = [];
-    mouseTrail = [];
-    saveState();
+    const link = document.createElement('a');
+    link.download = 'typography-art.png';
+    link.href = canvas.toDataURL();
+    link.click();
   });
   
   document.getElementById('undo-btn').addEventListener('click', undo);
@@ -1629,6 +1662,212 @@ document.getElementById('home-button').addEventListener('click', (e) => {
   // index.html의 list-section으로 이동
   window.location.href = 'index.html#list-section';
 });
+
+/* === [ADD-ON] TEXT WAVE MODULE (NO CHANGE TO EXISTING CODE) === */
+(function(){
+  // 1) 탭 버튼 동적 생성
+  const tabContainer = document.querySelector('.tab-container');
+  const waveTab = document.createElement('button');
+  waveTab.id = 'text-wave-tab';
+  waveTab.className = 'tab-button';
+  waveTab.textContent = '텍스트 파동';
+  tabContainer.appendChild(waveTab);
+
+  // 2) 모듈 DOM 동적 생성
+  const waveModule = document.createElement('div');
+  waveModule.id = 'text-wave-module';
+  waveModule.className = 'module'; // 기존 .module 스타일 재사용
+  waveModule.innerHTML = `
+    <canvas id="text-wave-canvas"></canvas>
+    <div id="text-wave-instruction">문장을 입력하고 마우스로 파동을 흔들어보세요</div>
+    <div id="text-wave-controls" role="group" aria-label="텍스트 파동 제어">
+      <input type="text" id="tw-text" value="너만의 파동을 일으켜" maxlength="100" aria-label="문장 입력">
+      <div class="kv"><label for="tw-font">폰트</label>
+        <select id="tw-font">
+          <option value="Pretendard">Pretendard</option>
+          <option value="Noto Sans KR">Noto Sans KR</option>
+          <option value="Nanum Gothic">나눔고딕</option>
+          <option value="Nanum Myeongjo">나눔명조</option>
+        </select>
+      </div>
+      <div class="kv"><label for="tw-color">색상</label><input type="color" id="tw-color" value="#000000"></div>
+      <div class="kv"><label for="tw-size">크기</label><input type="range" id="tw-size" min="14" max="96" value="48"><span id="tw-size-v">48</span></div>
+      <div class="kv"><label for="tw-amp">진폭</label><input type="range" id="tw-amp" min="4" max="140" value="60"><span id="tw-amp-v">60</span></div>
+      <div class="kv"><label for="tw-wave">파장</label><input type="range" id="tw-wave" min="40" max="500" value="220"><span id="tw-wave-v">220</span></div>
+      <div class="kv"><label for="tw-speed">속도</label><input type="range" id="tw-speed" min="0" max="300" value="120"><span id="tw-speed-v">1.20</span></div>
+      <div class="kv"><label for="tw-gap">줄간</label><input type="range" id="tw-gap" min="24" max="160" value="64"><span id="tw-gap-v">64</span></div>
+    </div>
+  `;
+  document.body.appendChild(waveModule);
+
+  // 3) 기존 전역 switchModule / tabs / modules와 연결
+  //    (기존 객체를 건드리지 않고 속성만 추가)
+  tabs.textWave = waveTab;
+  modules.textWave = waveModule;
+  waveTab.addEventListener('click', () => switchModule('textWave'));
+
+  // 4) 캔버스 렌더러
+  const canvas = waveModule.querySelector('#text-wave-canvas');
+  const ctx = canvas.getContext('2d');
+
+  // 컨트롤 참조
+  const inpText  = waveModule.querySelector('#tw-text');
+  const selFont  = waveModule.querySelector('#tw-font');
+  const inpColor = waveModule.querySelector('#tw-color');
+  const rgSize   = waveModule.querySelector('#tw-size');
+  const rgAmp    = waveModule.querySelector('#tw-amp');
+  const rgWave   = waveModule.querySelector('#tw-wave');
+  const rgSpeed  = waveModule.querySelector('#tw-speed');
+  const rgGap    = waveModule.querySelector('#tw-gap');
+
+  const vSize  = waveModule.querySelector('#tw-size-v');
+  const vAmp   = waveModule.querySelector('#tw-amp-v');
+  const vWave  = waveModule.querySelector('#tw-wave-v');
+  const vSpeed = waveModule.querySelector('#tw-speed-v');
+  const vGap   = waveModule.querySelector('#tw-gap-v');
+
+  // 상태
+  let W = 0, H = 0, DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  let phrase = inpText.value;
+  let fontFamily = selFont.value;
+  let color = inpColor.value;
+  let fontSize = +rgSize.value;
+  let amplitude = +rgAmp.value;
+  let wavelength = +rgWave.value;
+  let speed = +rgSpeed.value / 100;   // 0~3.0
+  let lineGap = +rgGap.value;
+
+  let t = 0;
+  let mouse = {x:0, y:0};
+  let ripples = []; // {x,y,life}
+
+  function resize(){
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  // 마우스 상호작용: 이동은 미세한 파형 가중, 클릭은 점발(방사 파동) 생성
+  waveModule.addEventListener('mousemove', (e)=>{
+    if(activeModule !== 'textWave') return;
+    mouse.x = e.clientX; mouse.y = e.clientY;
+  });
+  waveModule.addEventListener('click', (e)=>{
+    if(activeModule !== 'textWave') return;
+    ripples.push({x:e.clientX, y:e.clientY, life:0}); // life 0~1
+  });
+
+  // 컨트롤 이벤트
+  function bindRange(r, v, fmt=(x)=>x){
+    const update = ()=>{ v.textContent = fmt(r.value); };
+    r.addEventListener('input', update); update();
+  }
+  bindRange(rgSize,  vSize,  v=>v);
+  bindRange(rgAmp,   vAmp,   v=>v);
+  bindRange(rgWave,  vWave,  v=>v);
+  bindRange(rgSpeed, vSpeed, v=>(+v/100).toFixed(2));
+  bindRange(rgGap,   vGap,   v=>v);
+
+  inpText.addEventListener('input', ()=>{ phrase = inpText.value || '너만의 파동을 일으켜'; });
+  selFont.addEventListener('change', ()=>{ fontFamily = selFont.value; });
+  inpColor.addEventListener('input', ()=>{ color = inpColor.value; });
+  rgSize.addEventListener('input', ()=>{ fontSize = +rgSize.value; });
+  rgAmp.addEventListener('input', ()=>{ amplitude = +rgAmp.value; });
+  rgWave.addEventListener('input', ()=>{ wavelength = +rgWave.value; });
+  rgSpeed.addEventListener('input', ()=>{ speed = +rgSpeed.value/100; });
+  rgGap.addEventListener('input', ()=>{ lineGap = +rgGap.value; });
+
+  // 헬퍼: 텍스트 패턴 만들기 (캔버스 폭을 넘도록 반복)
+  function makeRowText(minWidth){
+    if(!phrase) return '';
+    let s = phrase + '   ';
+    while(measureText(s) < minWidth + 200){
+      s += phrase + '   ';
+    }
+    return s;
+  }
+  function measureText(s){
+    return ctx.measureText(s).width;
+  }
+
+  // 렌더
+  function draw(dt){
+    if(activeModule !== 'textWave') return; // 비활성 시 그리기 생략(퍼포먼스)
+
+    t += dt * speed;
+
+    // 배경
+    ctx.clearRect(0,0,W,H);
+
+    // 글꼴 설정
+    ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
+    ctx.fillStyle = color;
+
+    // 줄 루프: 화면을 덮도록 위아래로
+    const startY = (H % lineGap) / 2;
+    for(let y = startY; y <= H + lineGap; y += lineGap){
+      // 한 줄 기준 사인 파동
+      // 기본 파형 + 마우스 근접 보정 + 클릭 리플 섞기
+      const rowText = makeRowText(W);
+      // x 위치는 텍스트 길이에 맞춰 일정 간격으로 찍는다
+      let x = -50; // 약간 좌측에서 시작해 자연스러운 시작
+      const step = Math.max(16, fontSize * 0.6); // 글자 간격 대략치
+
+      for(let i=0; i<rowText.length; i++){
+        const ch = rowText[i];
+
+        // 기본 사인
+        const base = Math.sin((x + t*160) / wavelength) * amplitude;
+
+        // 마우스 따라가는 국소 왜곡(가우시안)
+        const dx = x - mouse.x, dy = y - mouse.y;
+        const dist = Math.hypot(dx,dy);
+        const falloff = Math.exp(-dist/300); // 0~1
+        const follow = Math.sin((dist - t*200) / 24) * amplitude * 0.35 * falloff;
+
+        // 클릭 리플(여러 개)
+        let rippleY = 0;
+        for(const r of ripples){
+          const ddx = x - r.x, ddy = y - r.y;
+          const d = Math.hypot(ddx,ddy);
+          const w = 8; // 리플 파장 느낌
+          const decay = Math.exp(-d/260) * (1 - r.life); // 퍼지며 사라짐
+          rippleY += Math.sin(d/w - (t*6)) * amplitude * 0.5 * decay;
+        }
+
+        const yOffset = base + follow + rippleY;
+
+        // 문자 그리기
+        ctx.save();
+        // 살짝 기울기(파도 방향 회전)
+        const tilt = Math.cos((x + t*160) / wavelength) * 0.08;
+        ctx.translate(x, y + yOffset);
+        ctx.rotate(tilt);
+        ctx.fillText(ch, 0, 0);
+        ctx.restore();
+
+        x += step;
+        if(x > W + 100) break;
+      }
+    }
+
+    // 리플 수명 증가 & 정리
+    ripples.forEach(r => r.life = Math.min(1, r.life + dt*0.5));
+    ripples = ripples.filter(r => r.life < 1);
+  }
+
+  // 루프
+  let last = performance.now();
+  function loop(now){
+    const dt = Math.min(0.05, (now - last)/1000);
+    last = now;
+    draw(dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
