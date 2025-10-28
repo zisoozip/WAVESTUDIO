@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2분할 레이아웃</title>
+
+<!-- Pretendard (아이콘 글리프용) -->
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+
 <style>
 :root{
   --header-h: 48px;          /* 헤더 높이(축소) */
@@ -84,34 +88,29 @@ body{
   color:#000;
 }
 
-/* 홈버튼 (헤더 내부) */
+/* 홈버튼 (Pretendard 글리프 ←, 미니멀) */
 #home-button{
-  width:40px;
-  height:40px;
-  background:linear-gradient(135deg,rgba(0,0,0,0.1) 0,rgba(0,0,0,0.2) 100%);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(0,0,0,0.15);
-  border-radius:50%;
-  cursor:pointer;
-  display:flex;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  transition:all .3s ease;
-  box-shadow:0 6px 20px rgba(0,0,0,0.25);
-  flex-shrink:0;
+  height:32px;
+  padding:0 4px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .15s ease, opacity .15s ease;
+  outline:none;
 }
-#home-button:hover{
-  background:linear-gradient(135deg,rgba(0,0,0,0.2) 0,rgba(0,0,0,0.3) 100%);
-  transform:translateY(-2px) scale(1.05);
-  box-shadow:0 12px 40px rgba(0,0,0,0.4);
+#home-button:focus-visible{ outline:1px solid #000; outline-offset:3px; }
+#home-button:hover{ transform:translateY(-1px); }
+#home-button:active{ transform:translateY(0); opacity:.7; }
+#home-button .icon-leftarrow{
+  font-family:'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight:700;
+  font-size:22px;
+  line-height:1;
+  letter-spacing:-0.02em;
 }
-#home-button svg{
-  width:22px;
-  height:22px;
-  fill:rgba(102,102,102,0.85);
-  transition:all .3s ease;
-}
-#home-button:hover svg{ fill:rgba(102,102,102,1); }
 
 /* 콘텐츠 */
 .content,.left-content{max-width:100%;text-align:left}
@@ -190,12 +189,10 @@ body{
 <!-- 왼쪽 패널 -->
 <div class="left-panel">
   <div class="header">
-    <!-- ✨ href를 실제 홈 경로로! (프로젝트 루트면 './' 또는 './index.html') -->
-    <a id="home-button" href="./index.html" aria-label="홈으로 이동">
-      <svg viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-      </svg>
-    </a>
+    <!-- ← Pretendard 글리프 / index.html의 메뉴 섹션(#menu)로 이동 -->
+    <div id="home-button" aria-label="뒤로" role="button" tabindex="0">
+      <span class="icon-leftarrow" aria-hidden="true">←</span>
+    </div>
     MAIN POSTER
   </div>
 
@@ -236,7 +233,7 @@ body{
 <!-- 팝업 -->
 <div class="popup" id="imagePopup">
   <span class="close-btn" onclick="closePopup()">×</span>
-  <img id="popupImage" src="">
+  <img id="popupImage" src="" alt="">
 </div>
 
 <script>
@@ -269,16 +266,17 @@ setInterval(() => {
   }, 1000);
 }, 3000);
 
-// ===== 홈 버튼 안전 폴백 =====
-// - href가 비어있거나 '#'(테스트용)일 때도 홈으로 이동시킴
-// - GitHub Pages 프로젝트라면 './'가 가장 안전(루트로 튀지 않음)
+// ===== 홈 버튼: index.html의 #menu로 이동 (클릭/Enter/Space) =====
 const homeBtn = document.getElementById('home-button');
-homeBtn.addEventListener('click', (e) => {
-  const href = homeBtn.getAttribute('href');
-  if (!href || href === '#') {
+const goBackToMenu = () => {
+  // 프로젝트 루트 기준 경로 조정 가능: './index.html#menu' 또는 './#menu'
+  window.location.href = './index.html#menu';
+};
+homeBtn.addEventListener('click', goBackToMenu);
+homeBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
-    // 프로젝트 루트(예: zisoozip.github.io/WAVESTUDIO/)로 이동
-    window.location.href = './';
+    goBackToMenu();
   }
 });
 </script>
