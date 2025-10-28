@@ -10,9 +10,9 @@
 
 <style>
 :root{
-  --header-h: 48px;          /* 헤더 높이(축소) */
-  --header-gap: 12px;        /* 홈버튼-텍스트 간격 */
-  --content-top-pad: 2px;    /* 헤더 아래 콘텐츠 상단 여백(아주 촘촘) */
+  --header-h: 48px;
+  --header-gap: 12px;
+  --content-top-pad: 2px;
 }
 
 body{
@@ -100,22 +100,22 @@ body{
   -webkit-tap-highlight-color:transparent;
   transition:transform .15s ease, opacity .15s ease;
   outline:none;
-}
-#home-button:focus-visible{ outline:1px solid #000; outline-offset:3px; }
-#home-button:hover{ transform:translateY(-1px); }
-#home-button:active{ transform:translateY(0); opacity:.7; }
-#home-button .icon-leftarrow{
-  font-family:'Pretendard', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  text-decoration:none;
+  color:#000;
+  font-family:'Pretendard',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
   font-weight:700;
   font-size:22px;
   line-height:1;
   letter-spacing:-0.02em;
 }
+#home-button:focus-visible{ outline:1px solid #000; outline-offset:3px; }
+#home-button:hover{ transform:translateY(-1px); }
+#home-button:active{ transform:translateY(0); opacity:.7; }
 
 /* 콘텐츠 */
 .content,.left-content{max-width:100%;text-align:left}
 .content-wrapper{
-  padding-top: calc(var(--header-h) + var(--content-top-pad)); /* 헤더 바로 아래 */
+  padding-top: calc(var(--header-h) + var(--content-top-pad));
   flex-grow:1;
 }
 .left-content p,
@@ -150,7 +150,7 @@ body{
   top:0;left:0;
   width:100%;height:100%;
   background-color:rgba(0,0,0,0.8);
-  z-index:1000; /* 헤더(1002)보다 낮게 유지: 홈버튼 클릭 가능 */
+  z-index:1000;
   justify-content:center;
   align-items:center;
 }
@@ -172,7 +172,7 @@ body{
   .left-panel{width:100%;position:relative;height:auto;min-height:200px;border-right:0;border-bottom:1px solid #000}
   .right-panel{width:100%;margin-left:0;margin-top:0}
   .header,.right-header{width:100%;position:relative}
-  .content-wrapper{padding-top: 14px;}
+  .content-wrapper{padding-top:14px;}
   .content img{max-width:90%}
 }
 @media screen and (max-width:480px){
@@ -189,10 +189,8 @@ body{
 <!-- 왼쪽 패널 -->
 <div class="left-panel">
   <div class="header">
-    <!-- ← Pretendard 글리프 / index.html의 메뉴 섹션(#menu)로 이동 -->
-    <div id="home-button" aria-label="뒤로" role="button" tabindex="0">
-      <span class="icon-leftarrow" aria-hidden="true">←</span>
-    </div>
+    <!-- ← Pretendard 글리프 / index.html의 list-section으로 이동 -->
+    <a id="home-button" href="./index.html#list-section" aria-label="뒤로">←</a>
     MAIN POSTER
   </div>
 
@@ -265,20 +263,6 @@ setInterval(() => {
     mainImage.style.opacity = 1;
   }, 1000);
 }, 3000);
-
-// ===== 홈 버튼: index.html의 #menu로 이동 (클릭/Enter/Space) =====
-const homeBtn = document.getElementById('home-button');
-const goBackToMenu = () => {
-  // 프로젝트 루트 기준 경로 조정 가능: './index.html#menu' 또는 './#menu'
-  window.location.href = './index.html#menu';
-};
-homeBtn.addEventListener('click', goBackToMenu);
-homeBtn.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    goBackToMenu();
-  }
-});
 </script>
 
 </body>
