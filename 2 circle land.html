@@ -6,6 +6,7 @@
 <title>자유로운 원형 파동</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css" rel="stylesheet">
 <style>
+/* 기본 */
 body{margin:0;overflow:hidden;font-family:'Pretendard',sans-serif;background:#000;color:#fff;transition:background-color .5s ease,color .5s ease;cursor:none}
 body.light-mode{background:#fff;color:#333}
 .custom-cursor{position:fixed;width:96px;height:96px;background-image:url('image/mou.png');background-size:contain;background-repeat:no-repeat;background-position:center;pointer-events:none;transform:translate(-50%,-50%);z-index:9999;transition:transform .05s ease;opacity:0}
@@ -14,6 +15,8 @@ body.light-mode{background:#fff;color:#333}
 .custom-cursor.hovering{transform:translate(-50%,-50%) scale(1.2)}
 input,textarea,select{cursor:text!important}
 canvas{display:block}
+
+/* 로딩 */
 #loading-screen{position:fixed;top:0;left:0;width:100%;height:100vh;background-color:#000;z-index:1000;overflow:hidden}
 #loading-screen.hidden{opacity:0;pointer-events:none;transition:opacity .5s ease}
 .brand-section{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center}
@@ -36,20 +39,34 @@ canvas{display:block}
 .progress-fill{height:100%;background:linear-gradient(90deg,#fff,#ccc);transition:width .1s ease;box-shadow:0 0 20px rgba(255,255,255,0.3)}
 @keyframes gentlePulse{0%,100%{transform:scale(1);text-shadow:0 0 100px rgba(255,255,255,0.2)}50%{transform:scale(1.01);text-shadow:0 0 120px rgba(255,255,255,0.3)}}
 .number-pulsing{animation:gentlePulse 3s ease-in-out infinite}
-#home-button{position:fixed;left:24px;top:24px;z-index:10000;width:48px;height:48px;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.2);border-radius:12px;cursor:pointer!important;display:flex;align-items:center;justify-content:center;transition:all .3s ease;pointer-events:all}
-#home-button:hover{background:rgba(255,255,255,0.2);transform:translateY(-1px);border-color:rgba(255,255,255,0.3);cursor:pointer!important}
-#home-button svg{width:20px;height:20px;fill:rgba(255,255,255,0.8);transition:fill .3s ease;pointer-events:none}
-#home-button:hover svg{fill:rgba(255,255,255,1)}
-body.light-mode #home-button{background:rgba(255,255,255,0.8);border-color:rgba(0,0,0,0.1)}
-body.light-mode #home-button:hover{background:rgba(255,255,255,0.95);border-color:rgba(0,0,0,0.15)}
-body.light-mode #home-button svg{fill:rgba(0,0,0,0.6)}
-body.light-mode #home-button:hover svg{fill:rgba(0,0,0,0.8)}
+
+/* 홈 버튼: Pretendard ← 단독, 배경/보더 없음 */
+#home-button{
+  position:fixed;left:24px;top:24px;z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  min-width:48px;min-height:48px; /* 터치 타깃 확보(투명) */
+  background:transparent;border:none;border-radius:0;
+  pointer-events:all;cursor:pointer!important;outline:none;
+}
+#home-button .icon-leftarrow{
+  font-family:'Pretendard',system-ui,-apple-system,segoe ui,arial,sans-serif;
+  font-weight:700;font-size:28px;line-height:1;
+  letter-spacing:-0.02em;user-select:none;
+  color:rgba(255,255,255,0.9);transition:transform .2s ease,opacity .2s ease,color .2s ease;
+}
+#home-button:hover .icon-leftarrow{transform:translateX(-2px);opacity:1}
+#home-button:active .icon-leftarrow{transform:translateX(-4px)}
+body.light-mode #home-button .icon-leftarrow{color:rgba(0,0,0,0.75)}
+
+/* 우상단 컨트롤 */
 .control-buttons{position:fixed;top:24px;right:24px;display:flex;gap:8px;z-index:10000}
 .control-button{padding:10px 16px;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:rgba(255,255,255,0.9);cursor:pointer;font-size:13px;font-weight:500;font-family:'Pretendard',sans-serif;transition:all .3s ease;display:flex;align-items:center;gap:6px}
 .control-button:hover{background:rgba(255,255,255,0.2);transform:translateY(-1px);border-color:rgba(255,255,255,0.3)}
 .control-button:active{transform:translateY(0)}
 body.light-mode .control-button{background:rgba(255,255,255,0.8);border-color:rgba(0,0,0,0.1);color:rgba(0,0,0,0.7)}
 body.light-mode .control-button:hover{background:rgba(255,255,255,0.95);border-color:rgba(0,0,0,0.15);color:rgba(0,0,0,0.9)}
+
+/* 설명 카드 */
 #instructions{position:fixed;bottom:24px;left:24px;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;font-size:14px;z-index:100;width:320px;transition:all .3s ease}
 body.light-mode #instructions{background:rgba(255,255,255,0.9);color:#333;border:1px solid rgba(0,0,0,0.1)}
 #instructions h3{margin:0 0 12px 0;font-size:15px;font-weight:600;color:rgba(255,255,255,0.9);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px}
@@ -59,20 +76,26 @@ body.light-mode #instructions p{color:rgba(0,0,0,0.7)}
 .key{display:inline-flex;align-items:center;justify-content:center;padding:2px 5px;margin:0 5px 0 0;font-family:'SF Mono','Monaco','Cascadia Code',monospace;font-size:10px;font-weight:500;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:3px;color:rgba(255,255,255,0.9);min-width:18px}
 body.light-mode .key{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.1);color:rgba(0,0,0,0.8)}
 #instructions:hover{transform:translateY(-1px)}
+
+/* 키 인디케이터 */
 .key-indicator{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#fff;padding:20px 40px;border-radius:12px;font-size:24px;font-weight:600;z-index:10001;opacity:0;pointer-events:none;transition:opacity .3s ease;border:2px solid rgba(255,255,255,0.3)}
 .key-indicator.show{opacity:1}
 body.light-mode .key-indicator{background:rgba(255,255,255,0.95);color:#333;border-color:rgba(0,0,0,0.2)}
+
+/* 반응형 */
 @media(max-width:768px){
-.brand-title{font-size:2.5rem}
-.loading-number{font-size:14rem}
-.preview-window{width:320px;height:240px;right:50%;transform:translate(50%,-50%);margin-right:-160px}
-.preview-window.visible{transform:translate(50%,-50%) scale(1)}
-#instructions{width:calc(100vw - 48px);bottom:16px;left:16px;padding:20px}
-.control-buttons{top:16px;right:16px;gap:8px}
-.control-button{padding:10px 16px;font-size:13px}
-#home-button{left:16px;top:16px;width:48px;height:48px}
-#home-button svg{width:24px;height:24px}
+  .brand-title{font-size:2.5rem}
+  .loading-number{font-size:14rem}
+  .preview-window{width:320px;height:240px;right:50%;transform:translate(50%,-50%);margin-right:-160px}
+  .preview-window.visible{transform:translate(50%,-50%) scale(1)}
+  #instructions{width:calc(100vw - 48px);bottom:16px;left:16px;padding:20px}
+  .control-buttons{top:16px;right:16px;gap:8px}
+  .control-button{padding:10px 16px;font-size:13px}
+  #home-button{left:16px;top:16px;min-width:44px;min-height:44px}
+  #home-button .icon-leftarrow{font-size:26px}
 }
+
+/* 기타 */
 ::-webkit-scrollbar{display:none}
 *{-ms-overflow-style:none;scrollbar-width:none}
 ::selection{background:rgba(255,255,255,0.2);color:inherit}
@@ -82,1129 +105,389 @@ body.light-mode .key-indicator{background:rgba(255,255,255,0.95);color:#333;bord
 <body>
 <div class="custom-cursor" id="customCursor"></div>
 <div class="key-indicator" id="keyIndicator"></div>
+
+<!-- 로딩 화면 -->
 <div id="loading-screen">
-<div class="brand-section">
-<div class="brand-title">Circle Ripples</div>
-<div class="brand-description">
-3D 심연 속에서 물결치는 환상의 세계.<br>
-마우스와 키보드로 다양한 원형 파동을 탐험해보세요.
-</div>
-</div>
-<div class="preview-window" id="previewWindow">
-<div class="preview-header">
-<div class="preview-dots">
-<div class="preview-dot"></div>
-<div class="preview-dot"></div>
-<div class="preview-dot"></div>
-</div>
-<div class="preview-title">Live Preview</div>
-</div>
-<div class="preview-content">
-<canvas class="preview-canvas" id="previewCanvas"></canvas>
-</div>
-</div>
-<div class="loading-section">
-<div class="loading-number" id="loadingNumber">0</div>
-</div>
-<div class="progress-bar">
-<div class="progress-fill" id="progressFill"></div>
-</div>
+  <div class="brand-section">
+    <div class="brand-title">Circle Ripples</div>
+    <div class="brand-description">
+      3D 심연 속에서 물결치는 환상의 세계.<br>
+      마우스와 키보드로 다양한 원형 파동을 탐험해보세요.
+    </div>
+  </div>
+  <div class="preview-window" id="previewWindow">
+    <div class="preview-header">
+      <div class="preview-dots">
+        <div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div>
+      </div>
+      <div class="preview-title">Live Preview</div>
+    </div>
+    <div class="preview-content">
+      <canvas class="preview-canvas" id="previewCanvas"></canvas>
+    </div>
+  </div>
+  <div class="loading-section">
+    <div class="loading-number" id="loadingNumber">0</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 </div>
 
-<a id="home-button" href="index.html#list-section">
-<svg viewBox="0 0 24 24">
-<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-</svg>
-</a>
+<!-- 홈 버튼: 요청한 형태로 교체 -->
+<div id="home-button" aria-label="뒤로" role="button" tabindex="0">
+  <span class="icon-leftarrow" aria-hidden="true">←</span>
+</div>
 
+<!-- 컨트롤 -->
 <div class="control-buttons">
-<button class="control-button" id="themeBtn">
-<span>🌙</span>
-<span>DARK</span>
-</button>
-<button class="control-button" id="resetBtn">
-<span>↻</span>
-<span>RESET</span>
-</button>
+  <button class="control-button" id="themeBtn"><span>🌙</span><span>DARK</span></button>
+  <button class="control-button" id="resetBtn"><span>↻</span><span>RESET</span></button>
 </div>
 
+<!-- 조작 안내 -->
 <div id="instructions">
-<h3>조작 방법</h3>
-<p><span class="key">마우스 이동</span>시점 변경</p>
-<p><span class="key">마우스 클릭</span>새로운 파동 생성</p>
-<p><span class="key">W</span><span class="key">S</span>파동 개수 증가/감소</p>
-<p><span class="key">A</span><span class="key">D</span>파동 속도 감소/증가</p>
-<p><span class="key">Q</span><span class="key">E</span>파동 색상 변경</p>
-<p><span class="key">Z</span><span class="key">X</span>파동 폭 조절</p>
-<p><span class="key">R</span>카메라 회전 모드 전환</p>
-<p><span class="key">F</span>자동 파동 생성 토글</p>
-<p><span class="key">T</span>다크/라이트 모드 전환</p>
-<p><span class="key">C</span>랜덤 위치 파동 생성</p>
-<p><span class="key">스페이스바</span>카메라 위치 재설정</p>
+  <h3>조작 방법</h3>
+  <p><span class="key">마우스 이동</span>시점 변경</p>
+  <p><span class="key">마우스 클릭</span>새로운 파동 생성</p>
+  <p><span class="key">W</span><span class="key">S</span>파동 개수 증가/감소</p>
+  <p><span class="key">A</span><span class="key">D</span>파동 속도 감소/증가</p>
+  <p><span class="key">Q</span><span class="key">E</span>파동 색상 변경</p>
+  <p><span class="key">Z</span><span class="key">X</span>파동 폭 조절</p>
+  <p><span class="key">R</span>카메라 회전 모드 전환</p>
+  <p><span class="key">F</span>자동 파동 생성 토글</p>
+  <p><span class="key">T</span>다크/라이트 모드 전환</p>
+  <p><span class="key">C</span>랜덤 위치 파동 생성</p>
+  <p><span class="key">스페이스바</span>카메라 위치 재설정</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 <script>
-// 키 인디케이터 표시 함수
-function showKeyIndicator(message) {
-    const indicator = document.getElementById('keyIndicator');
-    indicator.textContent = message;
-    indicator.classList.add('show');
-    setTimeout(() => {
-        indicator.classList.remove('show');
-    }, 800);
+/* 키 인디케이터 */
+function showKeyIndicator(message){
+  const indicator=document.getElementById('keyIndicator');
+  indicator.textContent=message;indicator.classList.add('show');
+  setTimeout(()=>indicator.classList.remove('show'),800);
 }
 
-// 홈 버튼 기능
-function goHome() {
-    try {
-        if (window.location.protocol === 'file:') {
-            window.location.href = './index.html#list-section';
-        } else {
-            window.location.href = './index.html#list-section';
+/* 홈 이동 */
+function goHome(){
+  try{
+    if(location.protocol==='file:'){location.href='./index.html#list-section';}
+    else{location.href='./index.html#list-section';}
+  }catch(e){console.error('홈 페이지 이동 오류:',e);location.href='./index.html';}
+}
+function setupHomeButton(){
+  const homeButton=document.getElementById('home-button');
+  if(!homeButton) return;
+
+  const trigger = (e)=>{e.preventDefault();e.stopPropagation();goHome();};
+  homeButton.addEventListener('click',trigger);
+  homeButton.addEventListener('mousedown',(e)=>e.stopPropagation());
+  homeButton.addEventListener('touchstart',(e)=>{e.preventDefault();e.stopPropagation();goHome();},{passive:false});
+  homeButton.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();trigger(e);}
+  });
+
+  homeButton.style.pointerEvents='all';
+  homeButton.style.cursor='pointer';
+}
+
+/* 로딩 숫자/프리뷰 */
+let currentNumber=0,displayNumber=0;
+const targetNumber=100;
+const loadingNumberEl=document.getElementById('loadingNumber');
+const progressFillEl=document.getElementById('progressFill');
+const previewWindow=document.getElementById('previewWindow');
+let animationId,startTime;const duration=4000;
+let previewScene,previewCamera,previewRenderer,previewRings=[],previewTime=0,previewAnimationId;
+
+class CustomCursor{
+  constructor(){
+    this.cursor=document.getElementById('customCursor');
+    this.mouseX=innerWidth/2;this.mouseY=innerHeight/2;
+    this.isClicking=false;this.imageLoaded=false;
+    this.preloadCursorImage();this.init();
+  }
+  preloadCursorImage(){
+    const img=new Image();
+    img.onload=()=>{this.imageLoaded=true;if(this.cursor){this.cursor.classList.add('image-loaded');this.cursor.style.opacity='1';}};
+    img.onerror=()=>{document.body.style.cursor='auto';if(this.cursor){this.cursor.style.display='none';}};
+    img.src='image/mou.png';
+  }
+  init(){
+    if(!this.cursor) return;
+    this.updateCursorPosition();
+    document.addEventListener('mousemove',(e)=>{this.mouseX=e.clientX;this.mouseY=e.clientY;this.updateCursorPosition();});
+    document.addEventListener('mousedown',()=>{this.isClicking=true;this.cursor.classList.add('clicking');});
+    document.addEventListener('mouseup',()=>{this.isClicking=false;this.cursor.classList.remove('clicking');});
+    document.addEventListener('mouseenter',(e)=>{if(this.isHoverTarget(e.target)){if(!this.isClicking){this.cursor.classList.add('hovering');}}},true);
+    document.addEventListener('mouseleave',(e)=>{if(this.isHoverTarget(e.target)){this.cursor.classList.remove('hovering');}},true);
+  }
+  isHoverTarget(el){
+    if(!el||!el.classList) return false;
+    const targetClasses=['control-button'];
+    const targetTags=['BUTTON'];
+    const targetIds=['home-button'];
+    if(targetClasses.some(c=>el.classList.contains(c))) return true;
+    if(el.tagName && targetTags.includes(el.tagName.toUpperCase())) return true;
+    if(el.id && targetIds.includes(el.id)) return true;
+    return false;
+  }
+  updateCursorPosition(){
+    if(this.cursor && this.imageLoaded){
+      const homeButton=document.getElementById('home-button');
+      if(homeButton){
+        const rect=homeButton.getBoundingClientRect();
+        const buffer=10;
+        if(this.mouseX>=rect.left-buffer && this.mouseX<=rect.right+buffer &&
+           this.mouseY>=rect.top-buffer  && this.mouseY<=rect.bottom+buffer){
+          this.cursor.style.opacity='0';document.body.style.cursor='pointer';return;
+        }else{
+          this.cursor.style.opacity='1';document.body.style.cursor='none';
         }
-    } catch (error) {
-        console.error('홈 페이지 이동 오류:', error);
-        window.location.href = './index.html';
+      }
+      this.cursor.style.left=this.mouseX+'px';
+      this.cursor.style.top=this.mouseY+'px';
     }
+  }
 }
 
-function setupHomeButton() {
-    const homeButton = document.getElementById('home-button');
-    if (homeButton) {
-        homeButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            goHome();
-        });
-        
-        homeButton.addEventListener('mousedown', function(e) {
-            e.stopPropagation();
-        });
-        
-        homeButton.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            goHome();
-        }, {passive: false});
-        
-        homeButton.style.pointerEvents = 'all';
-        homeButton.style.cursor = 'pointer';
-    }
+function animateLoadingNumber(ts){
+  if(!startTime) startTime=ts;
+  const elapsed=ts-startTime;
+  const progress=Math.min(elapsed/duration,1);
+  const eased=1-Math.pow(1-progress,3);
+  displayNumber=eased*targetNumber;
+  const rounded=progress>=1?targetNumber:Math.floor(displayNumber);
+  loadingNumberEl.textContent=rounded;
+  progressFillEl.style.width=(rounded/targetNumber*100)+'%';
+
+  if(rounded>=30 && !previewWindow.classList.contains('visible')){previewWindow.classList.add('visible');initPreview();}
+
+  if(progress<1){animationId=requestAnimationFrame(animateLoadingNumber);}
+  else{
+    loadingNumberEl.classList.remove('number-pulsing');
+    loadingNumberEl.style.transform='scale(1.1)';
+    loadingNumberEl.style.textShadow='0 0 150px rgba(255,255,255,0.6)';
+    setTimeout(()=>{loadingNumberEl.style.transform='scale(1)';loadingNumberEl.style.textShadow='0 0 100px rgba(255,255,255,0.2)';},300);
+    setTimeout(()=>{
+      if(previewAnimationId) cancelAnimationFrame(previewAnimationId);
+      document.getElementById('loading-screen').classList.add('hidden');
+      setTimeout(()=>{init();setupHomeButton();},500);
+    },1000);
+  }
 }
 
-// 로딩 화면 변수
-let currentNumber = 0;
-let displayNumber = 0;
-const targetNumber = 100;
-const loadingNumberEl = document.getElementById('loadingNumber');
-const progressFillEl = document.getElementById('progressFill');
-const previewWindow = document.getElementById('previewWindow');
-let animationId;
-let startTime;
-const duration = 4000;
-
-// 프리뷰 관련 변수
-let previewScene, previewCamera, previewRenderer;
-let previewRings = [];
-let previewTime = 0;
-let previewAnimationId;
-
-// 커스텀 커서 클래스
-class CustomCursor {
-    constructor() {
-        this.cursor = document.getElementById('customCursor');
-        this.mouseX = window.innerWidth / 2;
-        this.mouseY = window.innerHeight / 2;
-        this.isClicking = false;
-        this.imageLoaded = false;
-        
-        this.preloadCursorImage();
-        this.init();
+function initPreview(){
+  const previewCanvas=document.getElementById('previewCanvas');
+  const container=previewCanvas.parentElement;
+  previewScene=new THREE.Scene();previewScene.background=new THREE.Color(0x000000);
+  previewCamera=new THREE.PerspectiveCamera(75,container.clientWidth/container.clientHeight,0.1,1000);
+  previewCamera.position.set(0,8,12);previewCamera.lookAt(0,0,0);
+  previewRenderer=new THREE.WebGLRenderer({canvas:previewCanvas,antialias:true});
+  previewRenderer.setSize(container.clientWidth,container.clientHeight);
+  const amb=new THREE.AmbientLight(0x404040,0.4);previewScene.add(amb);
+  const dir=new THREE.DirectionalLight(0xffffff,0.6);dir.position.set(5,15,7.5);previewScene.add(dir);
+  createPreviewParticles();animatePreview();
+}
+function createPreviewParticles(){
+  const g=new THREE.BufferGeometry();const n=200;
+  const pos=new Float32Array(n*3);const col=new Float32Array(n*3);
+  for(let i=0;i<n;i++){
+    const r=15+20*Math.random();const t=2*Math.random()*Math.PI;const p=Math.acos(2*Math.random()-1);
+    pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.sin(p)*Math.sin(t)-5;pos[i*3+2]=r*Math.cos(p);
+    const b=Math.random();col[i*3]=1.0-b*0.4;col[i*3+1]=1.0-b*0.2;col[i*3+2]=1.0;
+  }
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const m=new THREE.PointsMaterial({size:0.3,vertexColors:true,transparent:true,opacity:0.8});
+  const mesh=new THREE.Points(g,m);previewScene.add(mesh);
+}
+function createPreviewRing(radius){
+  const seg=Math.max(16,Math.floor(radius*2));
+  const geo=new THREE.RingGeometry(radius,radius+0.03,seg);
+  const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.8,side:THREE.DoubleSide});
+  const ring=new THREE.Mesh(geo,mat);ring.rotation.x=-Math.PI/2;ring.position.set(0,-2,0);
+  ring.userData={radius,birthTime:previewTime};previewScene.add(ring);previewRings.push(ring);return ring;
+}
+function animatePreview(){
+  previewAnimationId=requestAnimationFrame(animatePreview);
+  previewTime+=0.02;
+  if(previewTime%1<0.02) createPreviewRing(0.5);
+  for(let i=previewRings.length-1;i>=0;i--){
+    const ring=previewRings[i];const age=previewTime-ring.userData.birthTime;
+    const newR=0.5+age*2;
+    if(newR>8){previewScene.remove(ring);ring.geometry.dispose();ring.material.dispose();previewRings.splice(i,1);continue;}
+    ring.material.opacity=0.8*(1-newR/8);
+    if(Math.abs(ring.userData.radius-newR)>0.1){
+      previewScene.remove(ring);ring.geometry.dispose();
+      const ng=new THREE.RingGeometry(newR,newR+0.03,Math.max(16,Math.floor(newR*2)));
+      const nr=new THREE.Mesh(ng,ring.material);nr.rotation.x=-Math.PI/2;nr.position.copy(ring.position);
+      nr.userData={radius:newR,birthTime:ring.userData.birthTime};previewScene.add(nr);previewRings[i]=nr;
     }
-    
-    preloadCursorImage() {
-        const img = new Image();
-        img.onload = () => {
-            this.imageLoaded = true;
-            if (this.cursor) {
-                this.cursor.classList.add('image-loaded');
-                this.cursor.style.opacity = '1';
-            }
-        };
-        img.onerror = () => {
-            document.body.style.cursor = 'auto';
-            if (this.cursor) {
-                this.cursor.style.display = 'none';
-            }
-        };
-        img.src = 'image/mou.png';
-    }
-    
-    init() {
-        if (!this.cursor) return;
-        
-        this.updateCursorPosition();
-        
-        document.addEventListener('mousemove', (e) => {
-            this.mouseX = e.clientX;
-            this.mouseY = e.clientY;
-            this.updateCursorPosition();
-        });
-        
-        document.addEventListener('mousedown', () => {
-            this.isClicking = true;
-            this.cursor.classList.add('clicking');
-        });
-        
-        document.addEventListener('mouseup', () => {
-            this.isClicking = false;
-            this.cursor.classList.remove('clicking');
-        });
-        
-        document.addEventListener('mouseenter', (e) => {
-            if (this.isHoverTarget(e.target)) {
-                if (!this.isClicking) {
-                    this.cursor.classList.add('hovering');
-                }
-            }
-        }, true);
-        
-        document.addEventListener('mouseleave', (e) => {
-            if (this.isHoverTarget(e.target)) {
-                this.cursor.classList.remove('hovering');
-            }
-        }, true);
-    }
-    
-    isHoverTarget(element) {
-        if (!element || !element.classList) return false;
-        
-        const targetClasses = ['control-button'];
-        const targetTags = ['BUTTON'];
-        const targetIds = ['home-button'];
-        
-        for (let className of targetClasses) {
-            if (element.classList.contains(className)) {
-                return true;
-            }
-        }
-        
-        if (element.tagName && targetTags.includes(element.tagName.toUpperCase())) {
-            return true;
-        }
-        
-        if (element.id && targetIds.includes(element.id)) {
-            return true;
-        }
-        
-        return false;
-    }
-    
-    updateCursorPosition() {
-        if (this.cursor && this.imageLoaded) {
-            const homeButton = document.getElementById('home-button');
-            if (homeButton) {
-                const rect = homeButton.getBoundingClientRect();
-                const buffer = 10;
-                
-                if (this.mouseX >= rect.left - buffer && 
-                    this.mouseX <= rect.right + buffer && 
-                    this.mouseY >= rect.top - buffer && 
-                    this.mouseY <= rect.bottom + buffer) {
-                    this.cursor.style.opacity = '0';
-                    document.body.style.cursor = 'pointer';
-                    return;
-                } else {
-                    this.cursor.style.opacity = '1';
-                    document.body.style.cursor = 'none';
-                }
-            }
-            
-            this.cursor.style.left = this.mouseX + 'px';
-            this.cursor.style.top = this.mouseY + 'px';
-        }
-    }
+  }
+  const pts=previewScene.children.find(c=>c.type==='Points');if(pts){pts.rotation.y+=0.002;}
+  previewRenderer.render(previewScene,previewCamera);
 }
 
-// 로딩 숫자 애니메이션
-function animateLoadingNumber(timestamp) {
-    if (!startTime) startTime = timestamp;
-    const elapsed = timestamp - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    const easedProgress = 1 - Math.pow(1 - progress, 3);
-    displayNumber = easedProgress * targetNumber;
-    
-    const roundedNumber = progress >= 1 ? targetNumber : Math.floor(displayNumber);
-    loadingNumberEl.textContent = roundedNumber;
-    
-    const progressPercentage = (roundedNumber / targetNumber) * 100;
-    progressFillEl.style.width = progressPercentage + '%';
-    
-    if (roundedNumber >= 30 && !previewWindow.classList.contains('visible')) {
-        previewWindow.classList.add('visible');
-        initPreview();
+/* 메인 씬 */
+let isDarkMode=true,scene,camera,renderer,clock,raycaster,mouse,rotationMode=false,waveRings=[],waveCount=15,speed=1,colorindex=0,cameraOrbit=0,waveSources=[],autoWaveGeneration=false,ringWidth=0.02,autoWaveInterval,isInitialized=false;
+const waveParams={minRadius:0.5,maxRadius:40,ringCount:waveCount,height:-2};
+const colors=[0xffffff,0x2389da,0x23daac,0xda2367,0xdac623,0x8c23da,0x00ff00,0xff6b00,0xff00aa,0x00aaff,0xffff00];
+
+function toggleTheme(){
+  if(!isInitialized) return;
+  isDarkMode=!isDarkMode;
+  const body=document.body,themeBtn=document.getElementById('themeBtn');
+  if(isDarkMode){body.classList.remove('light-mode');themeBtn.innerHTML='<span>🌙</span><span>DARK</span>';scene.background=new THREE.Color(0x000000);scene.fog=new THREE.FogExp2(0x000000,0.008);}
+  else{body.classList.add('light-mode');themeBtn.innerHTML='<span>☀️</span><span>LIGHT</span>';scene.background=new THREE.Color(0xffffff);scene.fog=new THREE.FogExp2(0xe6e6e6,0.003);}
+  updateBackgroundParticlesColor();showKeyIndicator(isDarkMode?'다크 모드':'라이트 모드');
+}
+
+function init(){
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x000000);scene.fog=new THREE.FogExp2(0x000000,0.008);
+  clock=new THREE.Clock();
+  camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000);camera.position.set(0,15,20);camera.lookAt(0,0,0);
+  renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));document.body.appendChild(renderer.domElement);
+  const amb=new THREE.AmbientLight(0x404040,0.4);scene.add(amb);
+  const dir=new THREE.DirectionalLight(0xffffff,0.6);dir.position.set(5,15,7.5);scene.add(dir);
+  raycaster=new THREE.Raycaster();mouse=new THREE.Vector2();
+  createBackgroundParticles();
+  addEventListener("resize",onWindowResize);
+  addEventListener("mousemove",onMouseMove);
+  addEventListener("click",createWaveAtClick);
+  document.getElementById("resetBtn").addEventListener("click",resetScene);
+  document.getElementById("themeBtn").addEventListener("click",toggleTheme);
+  document.addEventListener("keydown",onKeyDown);
+  isInitialized=true;animate();
+}
+
+/* 파티클 텍스처/배경 등 – (생략 없이 원문 유지) */
+function createCircleTexture(){const c=document.createElement('canvas');c.width=64;c.height=64;const ctx=c.getContext('2d');const cx=32,cy=32,r=30;const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.8,'rgba(255,255,255,0.8)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return new THREE.CanvasTexture(c);}
+function createBackgroundParticles(){
+  const g=new THREE.BufferGeometry(),n=1200,pos=new Float32Array(n*3),col=new Float32Array(n*3),sizes=new Float32Array(n);
+  for(let i=0;i<n;i++){
+    if(i<n*0.6){const a=Math.random()*Math.PI*2;const R=40+80*Math.random();const h=(Math.random()-0.5)*20;pos[i*3]=Math.cos(a)*R;pos[i*3+1]=h-20;pos[i*3+2]=Math.sin(a)*R;}
+    else{const R=30+100*Math.random(),t=2*Math.random()*Math.PI,p=Math.acos(2*Math.random()-1);pos[i*3]=R*Math.sin(p)*Math.cos(t);pos[i*3+1]=R*Math.sin(p)*Math.sin(t)-15;pos[i*3+2]=R*Math.cos(p);}
+    const b=Math.random();
+    if(isDarkMode){col[i*3]=1.0-b*0.4;col[i*3+1]=1.0-b*0.2;col[i*3+2]=1.0;}
+    else{col[i*3]=0.2+b*0.5;col[i*3+1]=0.3+b*0.5;col[i*3+2]=0.8+b*0.2;}
+    sizes[i]=0.3+Math.random()*0.7;
+  }
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  g.setAttribute('size',new THREE.BufferAttribute(sizes,1));
+  const m=new THREE.PointsMaterial({size:0.5,vertexColors:true,transparent:true,opacity:isDarkMode?0.9:0.8,sizeAttenuation:true,alphaTest:0.1,map:createCircleTexture()});
+  const mesh=new THREE.Points(g,m);mesh.name='backgroundParticles';scene.add(mesh);
+  mesh.userData={rotationSpeed:0.0001,twinklePhases:new Float32Array(n).map(()=>Math.random()*Math.PI*2),originalSizes:new Float32Array(sizes)};
+}
+function updateBackgroundParticlesColor(){
+  const pts=scene.getObjectByName('backgroundParticles');if(!pts) return;
+  const colorsAttr=pts.geometry.attributes.color;const count=colorsAttr.count;
+  for(let i=0;i<count;i++){const b=Math.random();if(isDarkMode){colorsAttr.setXYZ(i,1.0-b*0.4,1.0-b*0.2,1.0);}else{colorsAttr.setXYZ(i,0.2+b*0.5,0.3+b*0.5,0.8+b*0.2);}}
+  colorsAttr.needsUpdate=true;pts.material.opacity=isDarkMode?0.9:0.8;pts.material.needsUpdate=true;
+}
+function resetScene(){
+  if(!isInitialized) return;
+  for(let i=waveSources.length-1;i>=0;i--){for(let j=0;j<waveSources[i].rings.length;j++){const r=waveSources[i].rings[j];scene.remove(r);r.geometry.dispose();r.material.dispose();}}
+  waveSources=[];waveRings=[];
+  const pts=scene.getObjectByName('backgroundParticles');if(pts){scene.remove(pts);pts.geometry.dispose();pts.material.dispose();}
+  createBackgroundParticles();
+  gsap.to(camera.position,{x:0,y:15,z:20,duration:1.5,ease:'power2.inOut'});camera.lookAt(0,0,0);rotationMode=false;
+  if(autoWaveGeneration){autoWaveGeneration=false;if(autoWaveInterval) clearInterval(autoWaveInterval);}
+  const fg=new THREE.PlaneGeometry(100,100);const fm=new THREE.MeshBasicMaterial({color:isDarkMode?0xffffff:0x333333,transparent:true,opacity:0.8,side:THREE.DoubleSide});
+  const flash=new THREE.Mesh(fg,fm);flash.position.z=camera.position.z-10;flash.lookAt(camera.position);scene.add(flash);
+  gsap.to(fm,{opacity:0,duration:0.8,ease:'power2.out',onComplete:()=>{scene.remove(flash);flash.geometry.dispose();flash.material.dispose();}});
+  showKeyIndicator('리셋 완료');
+}
+function createWaveSource(position,isAuto=false){
+  const src={position,rings:[],speed:0.5+0.5*Math.random()*speed,startTime:clock.getElapsedTime(),lastRingTime:clock.getElapsedTime(),isAuto,frequency:0.5+2*Math.random(),amplitude:0.5+1.5*Math.random(),phaseShift:Math.random()*Math.PI*2,distortion:0.3*Math.random(),pulsate:Math.random()>0.5,wobble:Math.random()>0.7,color:colors[colorindex]};
+  waveSources.push(src);return src;
+}
+function createWaveAtClick(e){
+  if(!isInitialized) return;
+  if(e.target.closest('#home-button')||e.target.closest('.control-button')) return;
+  mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouse,camera);
+  const plane=new THREE.Plane(new THREE.Vector3(0,1,0),-waveParams.height);const p=new THREE.Vector3();raycaster.ray.intersectPlane(plane,p);
+  const g=new THREE.CircleGeometry(1,32);const m=new THREE.MeshBasicMaterial({color:colors[colorindex],transparent:true,opacity:0.8,side:THREE.DoubleSide});
+  const flash=new THREE.Mesh(g,m);flash.position.set(p.x,waveParams.height+0.1,p.z);flash.rotation.x=-Math.PI/2;scene.add(flash);
+  gsap.to(flash.scale,{x:3,y:3,z:1,duration:0.5,ease:'power1.out'});
+  gsap.to(m,{opacity:0,duration:0.5,ease:'power1.out',onComplete:()=>{scene.remove(flash);flash.geometry.dispose();flash.material.dispose();}});
+  createWaveSource(p);
+}
+function createWaveRing(source,radius){
+  const seg=Math.max(32,Math.floor(radius*4));let geo=new THREE.RingGeometry(radius,radius+ringWidth,seg);let ringColor=new THREE.Color(source.color);
+  const baseOpacity=isDarkMode?0.7:0.8;let opacity=baseOpacity;
+  if(source.pulsate){const phase=(clock.getElapsedTime()*source.frequency)%(Math.PI*2);opacity*=0.3*Math.sin(phase)+0.7;}
+  const mat=new THREE.MeshBasicMaterial({color:ringColor,transparent:true,opacity,side:THREE.DoubleSide,wireframe:false,depthWrite:false});
+  const ring=new THREE.Mesh(geo,mat);ring.rotation.x=-Math.PI/2;let y=waveParams.height+0.01;if(source.wobble){const t=clock.getElapsedTime();y+=Math.sin(t*source.frequency+source.phaseShift)*0.1;}
+  ring.position.set(source.position.x,y,source.position.z);
+  ring.userData={radius,birthTime:clock.getElapsedTime(),source};scene.add(ring);source.rings.push(ring);waveRings.push(ring);return ring;
+}
+function updateWaves(){
+  const now=clock.getElapsedTime();
+  for(let i=0;i<waveSources.length;i++){
+    const s=waveSources[i];const age=now-s.startTime;const maxAge=s.isAuto?20:40;
+    if(age>maxAge && !(s.position.x===0 && s.position.z===0)){for(let r of s.rings){gsap.to(r.material,{opacity:0,duration:0.5});}waveSources.splice(i,1);i--;continue;}
+    const interval=s.isAuto?0.6/s.speed:0.4/s.speed;
+    if(now-s.lastRingTime>interval){s.lastRingTime=now;createWaveRing(s,waveParams.minRadius);}
+    for(let j=0;j<s.rings.length;j++){
+      let ring=s.rings[j];const ringAge=now-ring.userData.birthTime;let grow=s.speed*5; if(s.pulsate) grow*=1+0.2*Math.sin(now*s.frequency);
+      const newR=waveParams.minRadius+ringAge*grow;
+      if(newR>waveParams.maxRadius){
+        scene.remove(ring);ring.geometry.dispose();ring.material.dispose();s.rings.splice(j,1);
+        const gi=waveRings.indexOf(ring);if(gi!==-1) waveRings.splice(gi,1);j--;continue;
+      }
+      let op=1-(newR/waveParams.maxRadius); if(s.pulsate) op*=0.7+0.3*Math.sin(ringAge*s.frequency*3);
+      const baseOpacity=isDarkMode?0.7:0.8;ring.material.opacity=baseOpacity*op;
+      if(s.isAuto){const hsl={};ring.material.color.getHSL(hsl);const hue=ringAge*0.1*s.frequency;ring.material.color.setHSL((hsl.h+hue)%1,hsl.s,hsl.l*(0.8+0.2*Math.sin(ringAge*2)));}
+
+      if(Math.abs(ring.userData.radius-newR)>0.1){
+        scene.remove(ring);ring.geometry.dispose();
+        const ng=new THREE.RingGeometry(newR,newR+ringWidth,Math.max(32,Math.floor(newR*4)));
+        const nr=new THREE.Mesh(ng,ring.material);nr.rotation.x=-Math.PI/2;nr.position.copy(ring.position);
+        nr.userData={radius:newR,birthTime:ring.userData.birthTime,source:s};scene.add(nr);s.rings[j]=nr;
+        const gi=waveRings.indexOf(ring);if(gi!==-1) waveRings[gi]=nr;ring=nr;
+      }
     }
-    
-    if (progress < 1) {
-        animationId = requestAnimationFrame(animateLoadingNumber);
-    } else {
-        loadingNumberEl.classList.remove('number-pulsing');
-        loadingNumberEl.style.transform = 'scale(1.1)';
-        loadingNumberEl.style.textShadow = '0 0 150px rgba(255, 255, 255, 0.6)';
-        
-        setTimeout(() => {
-            loadingNumberEl.style.transform = 'scale(1)';
-            loadingNumberEl.style.textShadow = '0 0 100px rgba(255, 255, 255, 0.2)';
-        }, 300);
-        
-        setTimeout(() => {
-            if (previewAnimationId) {
-                cancelAnimationFrame(previewAnimationId);
-            }
-            document.getElementById('loading-screen').classList.add('hidden');
-            
-            setTimeout(() => {
-                init();
-                setupHomeButton();
-            }, 500);
-        }, 1000);
-    }
+  }
 }
-
-// 프리뷰 초기화
-function initPreview() {
-    const previewCanvas = document.getElementById('previewCanvas');
-    const previewContainer = previewCanvas.parentElement;
-    
-    previewScene = new THREE.Scene();
-    previewScene.background = new THREE.Color(0x000000);
-    
-    previewCamera = new THREE.PerspectiveCamera(
-        75,
-        previewContainer.clientWidth / previewContainer.clientHeight,
-        0.1,
-        1000
-    );
-    previewCamera.position.set(0, 8, 12);
-    previewCamera.lookAt(0, 0, 0);
-    
-    previewRenderer = new THREE.WebGLRenderer({
-        canvas: previewCanvas,
-        antialias: true
-    });
-    previewRenderer.setSize(previewContainer.clientWidth, previewContainer.clientHeight);
-    
-    const previewAmbientLight = new THREE.AmbientLight(0x404040, 0.4);
-    previewScene.add(previewAmbientLight);
-    
-    const previewDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    previewDirectionalLight.position.set(5, 15, 7.5);
-    previewScene.add(previewDirectionalLight);
-    
-    createPreviewParticles();
-    animatePreview();
+function onWindowResize(){if(!isInitialized) return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
+function onMouseMove(e){if(!isInitialized||rotationMode) return;mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;gsap.to(camera.position,{x:mouse.x*5,z:20-Math.abs(mouse.y)*5,y:15+mouse.y*3,duration:2,ease:'power2.out'});camera.lookAt(0,0,0);}
+function toggleAutoWave(){
+  autoWaveGeneration=!autoWaveGeneration;
+  if(autoWaveGeneration){showKeyIndicator('자동 파동 ON');autoWaveInterval=setInterval(()=>{if(!isInitialized) return;const a=Math.random()*Math.PI*2;const r=5+15*Math.random();createWaveSource(new THREE.Vector3(Math.cos(a)*r,waveParams.height,Math.sin(a)*r),true);},2000);}
+  else{showKeyIndicator('자동 파동 OFF');if(autoWaveInterval) clearInterval(autoWaveInterval);}
 }
-
-// 프리뷰 파티클 생성
-function createPreviewParticles() {
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 200;
-    const positions = new Float32Array(particleCount * 3);
-    const particleColors = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount; i++) {
-        const radius = 15 + 20 * Math.random();
-        const theta = 2 * Math.random() * Math.PI;
-        const phi = Math.acos(2 * Math.random() - 1);
-        
-        positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-        positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) - 5;
-        positions[i * 3 + 2] = radius * Math.cos(phi);
-        
-        const blueIntensity = Math.random();
-        particleColors[i * 3] = 1.0 - blueIntensity * 0.4;
-        particleColors[i * 3 + 1] = 1.0 - blueIntensity * 0.2;
-        particleColors[i * 3 + 2] = 1.0;
-    }
-    
-    particlesGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    particlesGeometry.setAttribute("color", new THREE.BufferAttribute(particleColors, 3));
-    
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.3,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.8
-    });
-    
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    previewScene.add(particlesMesh);
+function onKeyDown(e){
+  if(!isInitialized) return;const k=e.key.toLowerCase();
+  switch(k){
+    case'w':waveCount=Math.min(waveCount+5,50);showKeyIndicator(`파동 개수: ${waveCount}`);break;
+    case's':waveCount=Math.max(waveCount-5,5);showKeyIndicator(`파동 개수: ${waveCount}`);break;
+    case'a':speed=Math.max(speed-0.1,0.2);for(let s of waveSources) s.speed=Math.max(s.speed*0.9,0.2);showKeyIndicator(`속도: ${speed.toFixed(1)}`);break;
+    case'd':speed=Math.min(speed+0.1,3);for(let s of waveSources) s.speed=Math.min(s.speed*1.1,3);showKeyIndicator(`속도: ${speed.toFixed(1)}`);break;
+    case'z':ringWidth=Math.max(ringWidth-0.01,0.01);showKeyIndicator(`파동 폭: ${ringWidth.toFixed(2)}`);break;
+    case'x':ringWidth=Math.min(ringWidth+0.01,0.2);showKeyIndicator(`파동 폭: ${ringWidth.toFixed(2)}`);break;
+    case'q':colorindex=(colorindex-1+colors.length)%colors.length;showKeyIndicator('색상 변경 ◀');break;
+    case'e':colorindex=(colorindex+1)%colors.length;showKeyIndicator('색상 변경 ▶');break;
+    case'r':rotationMode=!rotationMode;showKeyIndicator(rotationMode?'회전 모드 ON':'회전 모드 OFF');break;
+    case'f':toggleAutoWave();break;
+    case't':toggleTheme();break;
+    case' ':
+      e.preventDefault();rotationMode=false;
+      gsap.to(camera.position,{x:0,y:15,z:20,duration:1.5,ease:'power2.inOut'});camera.lookAt(0,0,0);showKeyIndicator('카메라 리셋');break;
+    case'c':
+      const a=Math.random()*Math.PI*2,R=5+10*Math.random();createWaveSource(new THREE.Vector3(Math.cos(a)*R,waveParams.height,Math.sin(a)*R));showKeyIndicator('랜덤 파동 생성');break;
+  }
 }
+function updateCamera(){if(!isInitialized) return;if(rotationMode){cameraOrbit+=0.003;const R=25;camera.position.x=Math.cos(cameraOrbit)*R;camera.position.z=Math.sin(cameraOrbit)*R;camera.lookAt(0,0,0);}}
+function updateBackgroundParticles(){if(!isInitialized) return;const pts=scene.getObjectByName('backgroundParticles');if(!pts) return;pts.rotation.y+=0.0003;pts.rotation.x+=0.0001;const t=clock.getElapsedTime();const sizes=pts.geometry.attributes.size;const phases=pts.userData.twinklePhases;const base=pts.userData.originalSizes;for(let i=0;i<sizes.count;i++){const b=base[i];const tw=Math.sin(t*(1+i%10)*0.2+phases[i])*0.4+0.6;sizes.setX(i,b*tw);}sizes.needsUpdate=true;}
+function animate(){requestAnimationFrame(animate);if(!isInitialized) return;updateWaves();updateCamera();updateBackgroundParticles();renderer.render(scene,camera);}
 
-// 프리뷰 링 생성 (처음 색상: 흰색)
-function createPreviewRing(radius) {
-    const segments = Math.max(16, Math.floor(radius * 2));
-    const geometry = new THREE.RingGeometry(radius, radius + 0.03, segments);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff, // 초기 파동 색상을 흰색으로 지정
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-    });
-    
-    const ring = new THREE.Mesh(geometry, material);
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.set(0, -2, 0);
-    ring.userData = {
-        radius: radius,
-        birthTime: previewTime
-    };
-    
-    previewScene.add(ring);
-    previewRings.push(ring);
-    
-    return ring;
-}
-
-// 프리뷰 애니메이션
-function animatePreview() {
-    previewAnimationId = requestAnimationFrame(animatePreview);
-    
-    previewTime += 0.02;
-    
-    if (previewTime % 1 < 0.02) {
-        createPreviewRing(0.5);
-    }
-    
-    for (let i = previewRings.length - 1; i >= 0; i--) {
-        const ring = previewRings[i];
-        const age = previewTime - ring.userData.birthTime;
-        const newRadius = 0.5 + age * 2;
-        
-        if (newRadius > 8) {
-            previewScene.remove(ring);
-            ring.geometry.dispose();
-            ring.material.dispose();
-            previewRings.splice(i, 1);
-            continue;
-        }
-        
-        const opacity = 0.8 * (1 - newRadius / 8);
-        ring.material.opacity = opacity;
-        
-        if (Math.abs(ring.userData.radius - newRadius) > 0.1) {
-            previewScene.remove(ring);
-            ring.geometry.dispose();
-            
-            const newGeometry = new THREE.RingGeometry(
-                newRadius,
-                newRadius + 0.03,
-                Math.max(16, Math.floor(newRadius * 2))
-            );
-            const newRing = new THREE.Mesh(newGeometry, ring.material);
-            newRing.rotation.x = -Math.PI / 2;
-            newRing.position.copy(ring.position);
-            newRing.userData = {
-                radius: newRadius,
-                birthTime: ring.userData.birthTime
-            };
-            
-            previewScene.add(newRing);
-            previewRings[i] = newRing;
-        }
-    }
-    
-    const particles = previewScene.children.find(child => child.type === 'Points');
-    if (particles) {
-        particles.rotation.y += 0.002;
-    }
-    
-    previewRenderer.render(previewScene, previewCamera);
-}
-
-// 메인 변수
-let isDarkMode = true;
-let scene, camera, renderer, clock, raycaster, mouse;
-let rotationMode = false;
-let waveRings = [];
-let waveCount = 15;
-let speed = 1;
-let colorindex = 0; // 색상 인덱스 기본값: 0 (흰색)
-let cameraOrbit = 0;
-let waveSources = [];
-let autoWaveGeneration = false;
-let ringWidth = 0.02;
-let autoWaveInterval;
-let isInitialized = false;
-
-const waveParams = {
-    minRadius: 0.5,
-    maxRadius: 40,
-    ringCount: waveCount,
-    height: -2
-};
-
-// 첫 번째 색상을 흰색으로 두어 초기 파동이 흰색이 되도록 함
-const colors = [
-    0xffffff, 0x2389da, 0x23daac, 0xda2367, 0xdac623, 0x8c23da,
-    0x00ff00, 0xff6b00, 0xff00aa, 0x00aaff, 0xffff00
-];
-
-// 테마 전환
-function toggleTheme() {
-    if (!isInitialized) return;
-    
-    isDarkMode = !isDarkMode;
-    const body = document.body;
-    const themeBtn = document.getElementById('themeBtn');
-    
-    if (isDarkMode) {
-        body.classList.remove('light-mode');
-        themeBtn.innerHTML = '<span>🌙</span><span>DARK</span>';
-        scene.background = new THREE.Color(0x000000);
-        scene.fog = new THREE.FogExp2(0x000000, 0.008);
-    } else {
-        body.classList.add('light-mode');
-        themeBtn.innerHTML = '<span>☀️</span><span>LIGHT</span>';
-        scene.background = new THREE.Color(0xffffff);
-        scene.fog = new THREE.FogExp2(0xe6e6e6, 0.003);
-    }
-    
-    updateBackgroundParticlesColor();
-    showKeyIndicator(isDarkMode ? '다크 모드' : '라이트 모드');
-}
-
-// 메인 초기화
-function init() {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-    scene.fog = new THREE.FogExp2(0x000000, 0.008);
-    
-    clock = new THREE.Clock();
-    
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    camera.position.set(0, 15, 20);
-    camera.lookAt(0, 0, 0);
-    
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    document.body.appendChild(renderer.domElement);
-    
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
-    scene.add(ambientLight);
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(5, 15, 7.5);
-    scene.add(directionalLight);
-    
-    raycaster = new THREE.Raycaster();
-    mouse = new THREE.Vector2();
-    
-    createBackgroundParticles();
-    
-    window.addEventListener("resize", onWindowResize);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("click", createWaveAtClick);
-    document.addEventListener("keydown", onKeyDown);
-    
-    document.getElementById("resetBtn").addEventListener("click", resetScene);
-    document.getElementById("themeBtn").addEventListener("click", toggleTheme);
-    
-    isInitialized = true;
-    animate();
-}
-
-// 원형 텍스처 생성
-function createCircleTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const context = canvas.getContext('2d');
-    
-    const centerX = 32;
-    const centerY = 32;
-    const radius = 30;
-    
-    const gradient = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.8, 'rgba(255,255,255,0.8)');
-    gradient.addColorStop(1, 'rgba(255,255,255,0)');
-    
-    context.fillStyle = gradient;
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    context.fill();
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    return texture;
-}
-
-// 배경 파티클 생성
-function createBackgroundParticles() {
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 1200;
-    const positions = new Float32Array(particleCount * 3);
-    const particleColors = new Float32Array(particleCount * 3);
-    const sizes = new Float32Array(particleCount);
-    
-    for (let i = 0; i < particleCount; i++) {
-        if (i < particleCount * 0.6) {
-            const galaxyAngle = Math.random() * Math.PI * 2;
-            const galaxyRadius = 40 + 80 * Math.random();
-            const galaxyHeight = (Math.random() - 0.5) * 20;
-            
-            positions[i * 3] = Math.cos(galaxyAngle) * galaxyRadius;
-            positions[i * 3 + 1] = galaxyHeight - 20;
-            positions[i * 3 + 2] = Math.sin(galaxyAngle) * galaxyRadius;
-        } else {
-            const radius = 30 + 100 * Math.random();
-            const theta = 2 * Math.random() * Math.PI;
-            const phi = Math.acos(2 * Math.random() - 1);
-            
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) - 15;
-            positions[i * 3 + 2] = radius * Math.cos(phi);
-        }
-        
-        const blueIntensity = Math.random();
-        if (isDarkMode) {
-            particleColors[i * 3] = 1.0 - blueIntensity * 0.4;
-            particleColors[i * 3 + 1] = 1.0 - blueIntensity * 0.2;
-            particleColors[i * 3 + 2] = 1.0;
-        } else {
-            particleColors[i * 3] = 0.2 + blueIntensity * 0.5;
-            particleColors[i * 3 + 1] = 0.3 + blueIntensity * 0.5;
-            particleColors[i * 3 + 2] = 0.8 + blueIntensity * 0.2;
-        }
-        
-        sizes[i] = 0.3 + Math.random() * 0.7;
-    }
-    
-    particlesGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    particlesGeometry.setAttribute("color", new THREE.BufferAttribute(particleColors, 3));
-    particlesGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-    
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.5,
-        vertexColors: true,
-        transparent: true,
-        opacity: isDarkMode ? 0.9 : 0.8,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
-        map: createCircleTexture()
-    });
-    
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    particlesMesh.name = "backgroundParticles";
-    scene.add(particlesMesh);
-    
-    particlesMesh.userData = {
-        rotationSpeed: 0.0001,
-        twinklePhases: new Float32Array(particleCount).map(() => Math.random() * Math.PI * 2),
-        originalSizes: new Float32Array(sizes)
-    };
-}
-
-// 배경 파티클 색상 업데이트
-function updateBackgroundParticlesColor() {
-    const particles = scene.getObjectByName("backgroundParticles");
-    if (particles) {
-        const colors = particles.geometry.attributes.color;
-        const particleCount = colors.count;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const blueIntensity = Math.random();
-            if (isDarkMode) {
-                colors.setXYZ(i, 1.0 - blueIntensity * 0.4, 1.0 - blueIntensity * 0.2, 1.0);
-            } else {
-                colors.setXYZ(i, 0.2 + blueIntensity * 0.5, 0.3 + blueIntensity * 0.5, 0.8 + blueIntensity * 0.2);
-            }
-        }
-        
-        colors.needsUpdate = true;
-        particles.material.opacity = isDarkMode ? 0.9 : 0.8;
-        particles.material.needsUpdate = true;
-    }
-}
-
-// 씬 리셋
-function resetScene() {
-    if (!isInitialized) return;
-    
-    for (let i = waveSources.length - 1; i >= 0; i--) {
-        for (let j = 0; j < waveSources[i].rings.length; j++) {
-            const ring = waveSources[i].rings[j];
-            scene.remove(ring);
-            ring.geometry.dispose();
-            ring.material.dispose();
-        }
-    }
-    
-    waveSources = [];
-    waveRings = [];
-    
-    const particles = scene.getObjectByName("backgroundParticles");
-    if (particles) {
-        scene.remove(particles);
-        particles.geometry.dispose();
-        particles.material.dispose();
-    }
-    
-    createBackgroundParticles();
-    
-    gsap.to(camera.position, {
-        x: 0,
-        y: 15,
-        z: 20,
-        duration: 1.5,
-        ease: "power2.inOut"
-    });
-    camera.lookAt(0, 0, 0);
-    rotationMode = false;
-    
-    if (autoWaveGeneration) {
-        autoWaveGeneration = false;
-        if (autoWaveInterval) {
-            clearInterval(autoWaveInterval);
-        }
-    }
-    
-    const flashGeometry = new THREE.PlaneGeometry(100, 100);
-    const flashMaterial = new THREE.MeshBasicMaterial({
-        color: isDarkMode ? 0xffffff : 0x333333,
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-    });
-    const flash = new THREE.Mesh(flashGeometry, flashMaterial);
-    flash.position.z = camera.position.z - 10;
-    flash.lookAt(camera.position);
-    scene.add(flash);
-    
-    gsap.to(flashMaterial, {
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        onComplete: function() {
-            scene.remove(flash);
-            flash.geometry.dispose();
-            flash.material.dispose();
-        }
-    });
-    
-    showKeyIndicator('리셋 완료');
-}
-
-// 파동 소스 생성
-function createWaveSource(position, isAuto = false) {
-    const waveSource = {
-        position: position,
-        rings: [],
-        speed: 0.5 + 0.5 * Math.random() * speed,
-        startTime: clock.getElapsedTime(),
-        lastRingTime: clock.getElapsedTime(),
-        isAuto: isAuto,
-        frequency: 0.5 + 2 * Math.random(),
-        amplitude: 0.5 + 1.5 * Math.random(),
-        phaseShift: Math.random() * Math.PI * 2,
-        distortion: 0.3 * Math.random(),
-        pulsate: Math.random() > 0.5,
-        wobble: Math.random() > 0.7,
-        color: colors[colorindex] // 초기 색상은 현재 인덱스(디폴트: 흰색)
-    };
-    
-    waveSources.push(waveSource);
-    return waveSource;
-}
-
-// 클릭으로 파동 생성
-function createWaveAtClick(event) {
-    if (!isInitialized) return;
-    
-    if (event.target.closest('#home-button') || event.target.closest('.control-button')) {
-        return;
-    }
-    
-    mouse.x = event.clientX / window.innerWidth * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    
-    raycaster.setFromCamera(mouse, camera);
-    
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -waveParams.height);
-    const targetPoint = new THREE.Vector3();
-    raycaster.ray.intersectPlane(plane, targetPoint);
-    
-    const flashGeometry = new THREE.CircleGeometry(1, 32);
-    const flashMaterial = new THREE.MeshBasicMaterial({
-        color: colors[colorindex], // 기본 흰색에서 시작
-        transparent: true,
-        opacity: 0.8,
-        side: THREE.DoubleSide
-    });
-    const flash = new THREE.Mesh(flashGeometry, flashMaterial);
-    flash.position.set(targetPoint.x, waveParams.height + 0.1, targetPoint.z);
-    flash.rotation.x = -Math.PI / 2;
-    scene.add(flash);
-    
-    gsap.to(flash.scale, {
-        x: 3,
-        y: 3,
-        z: 1,
-        duration: 0.5,
-        ease: "power1.out"
-    });
-    
-    gsap.to(flashMaterial, {
-        opacity: 0,
-        duration: 0.5,
-        ease: "power1.out",
-        onComplete: function() {
-            scene.remove(flash);
-            flash.geometry.dispose();
-            flash.material.dispose();
-        }
-    });
-    
-    createWaveSource(targetPoint);
-}
-
-// 파동 링 생성
-function createWaveRing(source, radius) {
-    const segments = Math.max(32, Math.floor(radius * 4));
-    let geometry = new THREE.RingGeometry(radius, radius + ringWidth, segments);
-    let ringColor = new THREE.Color(source.color);
-    
-    const baseOpacity = isDarkMode ? 0.7 : 0.8;
-    let opacity = baseOpacity;
-    
-    if (source.pulsate) {
-        const pulsePhase = (clock.getElapsedTime() * source.frequency) % (Math.PI * 2);
-        const pulseFactor = 0.3 * Math.sin(pulsePhase) + 0.7;
-        opacity *= pulseFactor;
-    }
-    
-    const material = new THREE.MeshBasicMaterial({
-        color: ringColor,
-        transparent: true,
-        opacity: opacity,
-        side: THREE.DoubleSide,
-        wireframe: false,
-        depthWrite: false
-    });
-    
-    const ring = new THREE.Mesh(geometry, material);
-    ring.rotation.x = -Math.PI / 2;
-    
-    let posY = waveParams.height + 0.01;
-    if (source.wobble) {
-        const time = clock.getElapsedTime();
-        posY += Math.sin(time * source.frequency + source.phaseShift) * 0.1;
-    }
-    
-    ring.position.set(source.position.x, posY, source.position.z);
-    ring.userData = {
-        radius: radius,
-        birthTime: clock.getElapsedTime(),
-        source: source
-    };
-    
-    scene.add(ring);
-    source.rings.push(ring);
-    waveRings.push(ring);
-    
-    return ring;
-}
-
-// 파동 업데이트
-function updateWaves() {
-    const currentTime = clock.getElapsedTime();
-    
-    for (let i = 0; i < waveSources.length; i++) {
-        const source = waveSources[i];
-        const age = currentTime - source.startTime;
-        const maxAge = source.isAuto ? 20 : 40;
-        
-        if (age > maxAge && !(source.position.x === 0 && source.position.z === 0)) {
-            for (let j = 0; j < source.rings.length; j++) {
-                gsap.to(source.rings[j].material, { opacity: 0, duration: 0.5 });
-            }
-            waveSources.splice(i, 1);
-            i--;
-            continue;
-        }
-        
-        const ringInterval = source.isAuto ? 0.6 / source.speed : 0.4 / source.speed;
-        if (currentTime - source.lastRingTime > ringInterval) {
-            source.lastRingTime = currentTime;
-            createWaveRing(source, waveParams.minRadius);
-        }
-        
-        for (let j = 0; j < source.rings.length; j++) {
-            let ring = source.rings[j];
-            const ringAge = currentTime - ring.userData.birthTime;
-            
-            const baseGrowthSpeed = source.speed * 5;
-            let growthSpeed = baseGrowthSpeed;
-            
-            if (source.pulsate) {
-                growthSpeed *= 1 + 0.2 * Math.sin(currentTime * source.frequency);
-            }
-            
-            const newRadius = waveParams.minRadius + ringAge * growthSpeed;
-            
-            if (newRadius > waveParams.maxRadius) {
-                scene.remove(ring);
-                ring.geometry.dispose();
-                ring.material.dispose();
-                source.rings.splice(j, 1);
-                
-                const globalIndex = waveRings.indexOf(ring);
-                if (globalIndex !== -1) {
-                    waveRings.splice(globalIndex, 1);
-                }
-                j--;
-                continue;
-            }
-            
-            let opacityFactor = 1 - (newRadius / waveParams.maxRadius);
-            if (source.pulsate) {
-                opacityFactor *= 0.7 + 0.3 * Math.sin(ringAge * source.frequency * 3);
-            }
-            
-            const baseOpacity = isDarkMode ? 0.7 : 0.8;
-            ring.material.opacity = baseOpacity * opacityFactor;
-            
-            if (source.isAuto) {
-                const hsl = {};
-                ring.material.color.getHSL(hsl);
-                const hueShift = ringAge * 0.1 * source.frequency;
-                ring.material.color.setHSL((hsl.h + hueShift) % 1, hsl.s, hsl.l * (0.8 + 0.2 * Math.sin(ringAge * 2)));
-            }
-            
-            if (Math.abs(ring.userData.radius - newRadius) > 0.1) {
-                scene.remove(ring);
-                ring.geometry.dispose();
-                
-                const newGeometry = new THREE.RingGeometry(
-                    newRadius,
-                    newRadius + ringWidth,
-                    Math.max(32, Math.floor(newRadius * 4))
-                );
-                const newRing = new THREE.Mesh(newGeometry, ring.material);
-                newRing.rotation.x = -Math.PI / 2;
-                newRing.position.copy(ring.position);
-                newRing.userData = {
-                    radius: newRadius,
-                    birthTime: ring.userData.birthTime,
-                    source: source
-                };
-                
-                scene.add(newRing);
-                source.rings[j] = newRing;
-                
-                const globalIndex = waveRings.indexOf(ring);
-                if (globalIndex !== -1) {
-                    waveRings[globalIndex] = newRing;
-                }
-                
-                ring = newRing;
-            }
-        }
-    }
-}
-
-// 윈도우 리사이즈
-function onWindowResize() {
-    if (!isInitialized) return;
-    
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-// 마우스 이동
-function onMouseMove(event) {
-    if (!isInitialized || rotationMode) return;
-    
-    mouse.x = event.clientX / window.innerWidth * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    
-    gsap.to(camera.position, {
-        x: mouse.x * 5,
-        z: 20 - Math.abs(mouse.y) * 5,
-        y: 15 + mouse.y * 3,
-        duration: 2,
-        ease: "power2.out"
-    });
-    camera.lookAt(0, 0, 0);
-}
-
-// 자동 파동 생성 토글
-function toggleAutoWave() {
-    autoWaveGeneration = !autoWaveGeneration;
-    
-    if (autoWaveGeneration) {
-        showKeyIndicator('자동 파동 ON');
-        autoWaveInterval = setInterval(() => {
-            if (!isInitialized) return;
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 5 + 15 * Math.random();
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
-            createWaveSource(new THREE.Vector3(x, waveParams.height, z), true);
-        }, 2000);
-    } else {
-        showKeyIndicator('자동 파동 OFF');
-        if (autoWaveInterval) {
-            clearInterval(autoWaveInterval);
-        }
-    }
-}
-
-// 키보드 입력
-function onKeyDown(event) {
-    if (!isInitialized) return;
-    
-    const key = event.key.toLowerCase();
-    
-    switch (key) {
-        case "w":
-            waveCount = Math.min(waveCount + 5, 50);
-            showKeyIndicator(`파동 개수: ${waveCount}`);
-            break;
-        case "s":
-            waveCount = Math.max(waveCount - 5, 5);
-            showKeyIndicator(`파동 개수: ${waveCount}`);
-            break;
-        case "a":
-            speed = Math.max(speed - 0.1, 0.2);
-            for (let i = 0; i < waveSources.length; i++)
-                waveSources[i].speed = Math.max(waveSources[i].speed * 0.9, 0.2);
-            showKeyIndicator(`속도: ${speed.toFixed(1)}`);
-            break;
-        case "d":
-            speed = Math.min(speed + 0.1, 3);
-            for (let i = 0; i < waveSources.length; i++)
-                waveSources[i].speed = Math.min(waveSources[i].speed * 1.1, 3);
-            showKeyIndicator(`속도: ${speed.toFixed(1)}`);
-            break;
-        case "z":
-            ringWidth = Math.max(ringWidth - 0.01, 0.01);
-            showKeyIndicator(`파동 폭: ${ringWidth.toFixed(2)}`);
-            break;
-        case "x":
-            ringWidth = Math.min(ringWidth + 0.01, 0.2);
-            showKeyIndicator(`파동 폭: ${ringWidth.toFixed(2)}`);
-            break;
-        case "q":
-            colorindex = (colorindex - 1 + colors.length) % colors.length;
-            showKeyIndicator(`색상 변경 ◀`);
-            break;
-        case "e":
-            colorindex = (colorindex + 1) % colors.length;
-            showKeyIndicator(`색상 변경 ▶`);
-            break;
-        case "r":
-            rotationMode = !rotationMode;
-            showKeyIndicator(rotationMode ? '회전 모드 ON' : '회전 모드 OFF');
-            break;
-        case "f":
-            toggleAutoWave();
-            break;
-        case "t":
-            toggleTheme();
-            break;
-        case " ":
-            event.preventDefault();
-            rotationMode = false;
-            gsap.to(camera.position, {
-                x: 0,
-                y: 15,
-                z: 20,
-                duration: 1.5,
-                ease: "power2.inOut"
-            });
-            camera.lookAt(0, 0, 0);
-            showKeyIndicator('카메라 리셋');
-            break;
-        case "c":
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 5 + 10 * Math.random();
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
-            createWaveSource(new THREE.Vector3(x, waveParams.height, z));
-            showKeyIndicator('랜덤 파동 생성');
-            break;
-    }
-}
-
-// 카메라 업데이트
-function updateCamera() {
-    if (!isInitialized) return;
-    
-    if (rotationMode) {
-        cameraOrbit += 0.003;
-        const radius = 25;
-        camera.position.x = Math.cos(cameraOrbit) * radius;
-        camera.position.z = Math.sin(cameraOrbit) * radius;
-        camera.lookAt(0, 0, 0);
-    }
-}
-
-// 배경 파티클 업데이트
-function updateBackgroundParticles() {
-    if (!isInitialized) return;
-    
-    const particles = scene.getObjectByName("backgroundParticles");
-    if (particles) {
-        particles.rotation.y += 0.0003;
-        particles.rotation.x += 0.0001;
-        
-        const time = clock.getElapsedTime();
-        const sizes = particles.geometry.attributes.size;
-        const twinklePhases = particles.userData.twinklePhases;
-        const originalSizes = particles.userData.originalSizes;
-        
-        for (let i = 0; i < sizes.count; i++) {
-            const baseSize = originalSizes[i];
-            const twinkle = Math.sin(time * (1 + i % 10) * 0.2 + twinklePhases[i]) * 0.4 + 0.6;
-            sizes.setX(i, baseSize * twinkle);
-        }
-        
-        sizes.needsUpdate = true;
-    }
-}
-
-// 메인 애니메이션 루프
-function animate() {
-    requestAnimationFrame(animate);
-    
-    if (!isInitialized) return;
-    
-    updateWaves();
-    updateCamera();
-    updateBackgroundParticles();
-    
-    renderer.render(scene, camera);
-}
-
-// 페이지 로드 시 초기화
-window.addEventListener('load', () => {
-    new CustomCursor();
-    
-    setTimeout(() => {
-        loadingNumberEl.classList.add('number-pulsing');
-        animationId = requestAnimationFrame(animateLoadingNumber);
-    }, 500);
+/* 시작 */
+addEventListener('load',()=>{
+  new CustomCursor();
+  setTimeout(()=>{document.getElementById('loadingNumber').classList.add('number-pulsing');animationId=requestAnimationFrame(animateLoadingNumber);},500);
 });
 </script>
 </body>
